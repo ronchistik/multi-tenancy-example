@@ -1,0 +1,18 @@
+{
+  "name": "odynn-multi-tenant-travel",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@9.12.1",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "dev:api": "pnpm --filter @odynn/api dev",
+    "dev:web": "pnpm --filter @odynn/web dev",
+    "build": "pnpm -r build",
+    "test": "pnpm --filter @odynn/api test",
+    "type-check": "pnpm -r type-check"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
+
