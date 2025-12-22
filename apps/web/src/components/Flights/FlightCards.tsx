@@ -11,14 +11,35 @@ interface FlightCardsProps {
 }
 
 export function FlightCards({ offers, config }: FlightCardsProps) {
+  const isBudget = config.id === 'saver-trips';
+  const isLuxury = config.id === 'apex-reserve';
+
   if (offers.length === 0) {
-    return <p style={styles.empty}>No flights found</p>;
+    return <p style={{
+      ...styles.empty,
+      color: isLuxury ? '#888' : '#999',
+    }}>No flights found</p>;
   }
 
   return (
-    <div style={styles.grid}>
+    <div style={{
+      ...styles.grid,
+      gridTemplateColumns: isBudget ? 'repeat(auto-fill, minmax(340px, 1fr))' : 
+                          isLuxury ? 'repeat(auto-fill, minmax(400px, 1fr))' :
+                          'repeat(auto-fill, minmax(320px, 1fr))',
+      gap: isBudget ? '24px' : isLuxury ? '32px' : '20px',
+    }}>
       {offers.map((offer) => (
-        <div key={offer.id} style={styles.card}>
+        <div key={offer.id} style={{
+          ...styles.card,
+          background: isLuxury ? 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%)' : 'white',
+          border: isLuxury ? '1px solid #3a3a3a' : isBudget ? '2px solid #e5e7eb' : 'none',
+          borderRadius: isBudget ? '20px' : isLuxury ? '12px' : '12px',
+          padding: isBudget ? '28px' : isLuxury ? '32px' : '20px',
+          boxShadow: isLuxury ? '0 8px 32px rgba(0,0,0,0.6)' : 
+                     isBudget ? '0 2px 8px rgba(16, 185, 129, 0.1)' :
+                     '0 2px 8px rgba(0,0,0,0.1)',
+        }}>
           {/* Policy badges */}
           {offer.policy?.preferred && config.uxHints.highlightPreferred && (
             <div style={styles.preferredBadge}>✓ Preferred</div>
@@ -34,24 +55,60 @@ export function FlightCards({ offers, config }: FlightCardsProps) {
           {/* Price - prominent for budget tenants */}
           <div style={{
             ...styles.price,
-            fontSize: config.uxHints.priceEmphasis === 'high' ? '32px' : '24px',
-            fontWeight: config.uxHints.priceEmphasis === 'high' ? 700 : 600,
+            fontSize: isBudget ? '48px' : isLuxury ? '32px' : '24px',
+            fontWeight: isBudget ? 800 : isLuxury ? 300 : 600,
+            color: isBudget ? config.uxHints.primaryColor : isLuxury ? '#ffffff' : '#333',
+            marginBottom: isBudget ? '8px' : '8px',
+            textAlign: isBudget ? 'center' : 'left',
           }}>
-            {parseFloat(offer.price.amount).toFixed(0)} {offer.price.currency}
+            ${parseFloat(offer.price.amount).toFixed(0)}
+            <span style={{
+              fontSize: isBudget ? '20px' : '18px',
+              fontWeight: 400,
+              color: isBudget ? '#666' : isLuxury ? '#999' : '#666',
+              display: 'block',
+              marginTop: isBudget ? '4px' : '0',
+            }}>
+              {offer.price.currency}
+            </span>
           </div>
 
           {/* Airline */}
-          <div style={styles.airline}>{offer.owner.name}</div>
+          <div style={{
+            ...styles.airline,
+            color: isLuxury ? '#b0b0b0' : '#666',
+            fontSize: isLuxury ? '18px' : '16px',
+            fontWeight: isLuxury ? 400 : 500,
+            textAlign: isBudget ? 'center' : 'left',
+            marginBottom: isBudget ? '16px' : '12px',
+          }}>{offer.owner.name}</div>
 
           {/* Route */}
           {offer.slices.map((slice, idx) => (
-            <div key={idx} style={styles.slice}>
+            <div key={idx} style={{
+              ...styles.slice,
+              borderBottom: isLuxury ? '1px solid #3a3a3a' : '1px solid #f0f0f0',
+            }}>
               <div style={styles.route}>
-                <span style={styles.airport}>{slice.origin.code}</span>
-                <span style={styles.arrow}>→</span>
-                <span style={styles.airport}>{slice.destination.code}</span>
+                <span style={{
+                  ...styles.airport,
+                  color: isLuxury ? '#e5e5e5' : '#333',
+                  fontSize: isBudget ? '20px' : '18px',
+                }}>{slice.origin.code}</span>
+                <span style={{
+                  ...styles.arrow,
+                  color: isLuxury ? '#666' : '#999',
+                }}>→</span>
+                <span style={{
+                  ...styles.airport,
+                  color: isLuxury ? '#e5e5e5' : '#333',
+                  fontSize: isBudget ? '20px' : '18px',
+                }}>{slice.destination.code}</span>
               </div>
-              <div style={styles.time}>
+              <div style={{
+                ...styles.time,
+                color: isLuxury ? '#999' : '#666',
+              }}>
                 {new Date(slice.departureTime).toLocaleTimeString('en-US', {
                   hour: '2-digit',
                   minute: '2-digit',
@@ -81,9 +138,17 @@ export function FlightCards({ offers, config }: FlightCardsProps) {
             ))}
 
           <button
-            style={{ ...styles.button, background: config.uxHints.primaryColor }}
+            style={{ 
+              ...styles.button, 
+              background: config.uxHints.primaryColor,
+              fontSize: isBudget ? '18px' : '14px',
+              fontWeight: isBudget ? 700 : 500,
+              padding: isBudget ? '16px' : '10px 20px',
+              textTransform: isLuxury ? 'uppercase' : 'none',
+              letterSpacing: isLuxury ? '1px' : 'normal',
+            }}
           >
-            Select
+            {isBudget ? 'Book Now' : isLuxury ? 'Reserve' : 'Select'}
           </button>
         </div>
       ))}

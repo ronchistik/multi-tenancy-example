@@ -42,15 +42,40 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
   };
 
   const isTableLayout = config.uxHints.layout === 'table';
+  const isBudget = config.id === 'saver-trips';
+  const isLuxury = config.id === 'apex-reserve';
 
   return (
     <div>
-      <h2 style={styles.title}>Search Flights</h2>
+      <h2 style={{
+        ...styles.title,
+        color: isLuxury ? '#e5e5e5' : '#333',
+        fontSize: isBudget ? '26px' : isTableLayout ? '20px' : '24px',
+        fontWeight: isBudget ? 700 : 600,
+      }}>
+        {isBudget ? 'Search Flights' : 
+         isLuxury ? 'Search Premium Flights' : 
+         'Flight Search'}
+      </h2>
 
-      <form onSubmit={handleSearch} style={styles.form}>
-        <div style={styles.formRow}>
+      <form onSubmit={handleSearch} style={{
+        ...styles.form,
+        background: isLuxury ? '#2a2a2a' : 'white',
+        border: isLuxury ? '1px solid #3a3a3a' : isBudget ? '3px solid ' + config.uxHints.primaryColor : 'none',
+        boxShadow: isBudget ? '0 4px 12px rgba(16, 185, 129, 0.15)' : isLuxury ? '0 4px 20px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.1)',
+      }}>
+        <div style={{
+          ...styles.formRow,
+          gridTemplateColumns: isTableLayout ? 'repeat(6, 1fr)' : 'repeat(auto-fit, minmax(150px, 1fr))',
+          gap: isBudget ? '20px' : '16px',
+        }}>
           <div style={styles.field}>
-            <label style={styles.label}>From</label>
+            <label style={{
+              ...styles.label,
+              color: isLuxury ? '#a0a0a0' : '#555',
+              fontSize: isBudget ? '15px' : '14px',
+              fontWeight: isBudget ? 600 : 500,
+            }}>From</label>
             <input
               type="text"
               value={formData.origin}
@@ -58,12 +83,24 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
               placeholder="JFK"
               maxLength={3}
               required
-              style={styles.input}
+              style={{
+                ...styles.input,
+                background: isLuxury ? '#1a1a1a' : 'white',
+                color: isLuxury ? '#e5e5e5' : '#333',
+                border: isLuxury ? '1px solid #4a4a4a' : isBudget ? '2px solid #e5e7eb' : '1px solid #ddd',
+                fontSize: isBudget ? '16px' : '14px',
+                padding: isBudget ? '12px' : '8px 12px',
+              }}
             />
           </div>
 
           <div style={styles.field}>
-            <label style={styles.label}>To</label>
+            <label style={{
+              ...styles.label,
+              color: isLuxury ? '#a0a0a0' : '#555',
+              fontSize: isBudget ? '15px' : '14px',
+              fontWeight: isBudget ? 600 : 500,
+            }}>To</label>
             <input
               type="text"
               value={formData.destination}
@@ -71,33 +108,69 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
               placeholder="LAX"
               maxLength={3}
               required
-              style={styles.input}
+              style={{
+                ...styles.input,
+                background: isLuxury ? '#1a1a1a' : 'white',
+                color: isLuxury ? '#e5e5e5' : '#333',
+                border: isLuxury ? '1px solid #4a4a4a' : isBudget ? '2px solid #e5e7eb' : '1px solid #ddd',
+                fontSize: isBudget ? '16px' : '14px',
+                padding: isBudget ? '12px' : '8px 12px',
+              }}
             />
           </div>
 
           <div style={styles.field}>
-            <label style={styles.label}>Departure</label>
+            <label style={{
+              ...styles.label,
+              color: isLuxury ? '#a0a0a0' : '#555',
+              fontSize: isBudget ? '15px' : '14px',
+              fontWeight: isBudget ? 600 : 500,
+            }}>Departure</label>
             <input
               type="date"
               value={formData.departureDate}
               onChange={(e) => setFormData({ ...formData, departureDate: e.target.value })}
               required
-              style={styles.input}
+              style={{
+                ...styles.input,
+                background: isLuxury ? '#1a1a1a' : 'white',
+                color: isLuxury ? '#e5e5e5' : '#333',
+                border: isLuxury ? '1px solid #4a4a4a' : isBudget ? '2px solid #e5e7eb' : '1px solid #ddd',
+                fontSize: isBudget ? '16px' : '14px',
+                padding: isBudget ? '12px' : '8px 12px',
+              }}
             />
           </div>
 
           <div style={styles.field}>
-            <label style={styles.label}>Return</label>
+            <label style={{
+              ...styles.label,
+              color: isLuxury ? '#a0a0a0' : '#555',
+              fontSize: isBudget ? '15px' : '14px',
+              fontWeight: isBudget ? 600 : 500,
+            }}>Return</label>
             <input
               type="date"
               value={formData.returnDate || ''}
               onChange={(e) => setFormData({ ...formData, returnDate: e.target.value })}
-              style={styles.input}
+              style={{
+                ...styles.input,
+                background: isLuxury ? '#1a1a1a' : 'white',
+                color: isLuxury ? '#e5e5e5' : '#333',
+                border: isLuxury ? '1px solid #4a4a4a' : isBudget ? '2px solid #e5e7eb' : '1px solid #ddd',
+                fontSize: isBudget ? '16px' : '14px',
+                padding: isBudget ? '12px' : '8px 12px',
+              }}
             />
           </div>
 
           <div style={styles.field}>
-            <label style={styles.label}>Passengers</label>
+            <label style={{
+              ...styles.label,
+              color: isLuxury ? '#a0a0a0' : '#555',
+              fontSize: isBudget ? '15px' : '14px',
+              fontWeight: isBudget ? 600 : 500,
+            }}>Passengers</label>
             <input
               type="number"
               value={formData.passengers}
@@ -105,16 +178,35 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
               min={1}
               max={9}
               required
-              style={styles.input}
+              style={{
+                ...styles.input,
+                background: isLuxury ? '#1a1a1a' : 'white',
+                color: isLuxury ? '#e5e5e5' : '#333',
+                border: isLuxury ? '1px solid #4a4a4a' : isBudget ? '2px solid #e5e7eb' : '1px solid #ddd',
+                fontSize: isBudget ? '16px' : '14px',
+                padding: isBudget ? '12px' : '8px 12px',
+              }}
             />
           </div>
 
           <div style={styles.field}>
-            <label style={styles.label}>Cabin Class</label>
+            <label style={{
+              ...styles.label,
+              color: isLuxury ? '#a0a0a0' : '#555',
+              fontSize: isBudget ? '15px' : '14px',
+              fontWeight: isBudget ? 600 : 500,
+            }}>Cabin Class</label>
             <select
               value={formData.cabinClass || config.flightDefaults.cabinClass}
               onChange={(e) => setFormData({ ...formData, cabinClass: e.target.value as any })}
-              style={styles.input}
+              style={{
+                ...styles.input,
+                background: isLuxury ? '#1a1a1a' : 'white',
+                color: isLuxury ? '#e5e5e5' : '#333',
+                border: isLuxury ? '1px solid #4a4a4a' : isBudget ? '2px solid #e5e7eb' : '1px solid #ddd',
+                fontSize: isBudget ? '16px' : '14px',
+                padding: isBudget ? '12px' : '8px 12px',
+              }}
             >
               <option value="economy">Economy</option>
               <option value="premium_economy">Premium Economy</option>
@@ -127,18 +219,37 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
         <button
           type="submit"
           disabled={loading}
-          style={{ ...styles.button, background: config.uxHints.primaryColor }}
+          style={{ 
+            ...styles.button, 
+            background: config.uxHints.primaryColor,
+            fontSize: isBudget ? '18px' : '16px',
+            padding: isBudget ? '16px 32px' : isTableLayout ? '10px 20px' : '12px 24px',
+            fontWeight: isBudget ? 700 : 600,
+            textTransform: isLuxury ? 'uppercase' : 'none',
+            letterSpacing: isLuxury ? '1px' : 'normal',
+          }}
         >
-          {loading ? 'Searching...' : 'Search Flights'}
+          {loading ? 'Searching...' : isBudget ? 'Find Cheapest Flights' : isLuxury ? 'Search Flights' : 'Search'}
         </button>
       </form>
 
-      {error && <div style={styles.error}>Error: {error}</div>}
+      {error && <div style={{
+        ...styles.error,
+        background: isLuxury ? '#3a1a1a' : '#fee',
+        color: isLuxury ? '#ff6b6b' : '#c00',
+        border: isLuxury ? '1px solid #4a2a2a' : 'none',
+      }}>Error: {error}</div>}
 
       {offers.length > 0 && (
         <div style={styles.results}>
-          <h3 style={styles.resultsTitle}>
-            {offers.length} flight{offers.length !== 1 ? 's' : ''} found
+          <h3 style={{
+            ...styles.resultsTitle,
+            color: isLuxury ? '#e5e5e5' : '#333',
+            fontSize: isBudget ? '22px' : '18px',
+          }}>
+            {isBudget ? `${offers.length} Budget Flight${offers.length !== 1 ? 's' : ''} Found` :
+             isTableLayout ? `Results: ${offers.length} flight${offers.length !== 1 ? 's' : ''}` :
+             `${offers.length} flight${offers.length !== 1 ? 's' : ''} found`}
           </h3>
           {isTableLayout ? (
             <FlightTable offers={offers} config={config} />

@@ -42,12 +42,25 @@ export function StaysPage({ config, locations, onSearch }: StaysPageProps) {
   };
 
   const isTableLayout = config.uxHints.layout === 'table';
+  const isLuxury = config.id === 'apex-reserve';
+  const isBudget = config.id === 'saver-trips';
 
   return (
     <div>
-      <h2 style={styles.title}>Search Hotels</h2>
+      <h2 style={{
+        ...styles.title,
+        color: isLuxury ? '#e5e5e5' : '#333',
+        fontSize: isBudget ? '28px' : isTableLayout ? '20px' : '24px',
+      }}>
+        {isLuxury ? 'Search Luxury Accommodations' : 'Search Hotels'}
+      </h2>
 
-      <form onSubmit={handleSearch} style={styles.form}>
+      <form onSubmit={handleSearch} style={{
+        ...styles.form,
+        background: isLuxury ? '#2a2a2a' : 'white',
+        border: isLuxury ? '1px solid #3a3a3a' : 'none',
+        boxShadow: isLuxury ? '0 4px 20px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.1)',
+      }}>
         <div style={styles.formRow}>
           <div style={styles.field}>
             <label style={styles.label}>Location</label>

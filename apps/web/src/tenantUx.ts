@@ -40,6 +40,7 @@ export const baseStyles = `
 
   button:hover {
     opacity: 0.9;
+    transform: translateY(-1px);
   }
 
   input, select {
@@ -47,6 +48,7 @@ export const baseStyles = `
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 14px;
+    transition: all 0.2s;
   }
 
   input:focus, select:focus {
