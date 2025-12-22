@@ -12,7 +12,9 @@ export function App() {
   const [tenantId, setTenantId] = useState<string>('saver-trips');
   const [showBuilder, setShowBuilder] = useState<boolean>(false);
   const [config, setConfig] = useState<any>(null);
+  const [tenantName, setTenantName] = useState<string>('');
 
+  // ALL HOOKS MUST BE BEFORE ANY CONDITIONAL RETURNS
   React.useEffect(() => {
     if (showBuilder) {
       // Load config and locations for page builder
@@ -21,7 +23,14 @@ export function App() {
       });
     }
   }, [showBuilder, tenantId]);
+  
+  React.useEffect(() => {
+    createApiClient(tenantId).getConfig().then((res) => {
+      setTenantName(res.tenant.uxHints.brandName);
+    });
+  }, [tenantId]);
 
+  // Builder mode
   if (showBuilder && config) {
     const apiClient = createApiClient(tenantId);
     
@@ -64,10 +73,12 @@ export function App() {
     );
   }
 
+  // Main app mode
   return (
     <div>
       <TenantPicker
         currentTenant={tenantId}
+        tenantName={tenantName}
         onTenantChange={setTenantId}
         onNavigateToBuilder={() => setShowBuilder(true)}
       />

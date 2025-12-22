@@ -38,6 +38,12 @@ export function PageBuilder({ config, locations = [], onFlightSearch, onStaySear
   ]);
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState<boolean>(false);
+  
+  // State for functional components
+  const [flightResults, setFlightResults] = useState<FlightOffer[]>([]);
+  const [hotelResults, setHotelResults] = useState<StayOffer[]>([]);
+  const [loadingFlights, setLoadingFlights] = useState(false);
+  const [loadingHotels, setLoadingHotels] = useState(false);
 
   const addComponent = (type: ComponentType) => {
     const newComponent: PageComponent = {
@@ -130,7 +136,34 @@ export function PageBuilder({ config, locations = [], onFlightSearch, onStaySear
         <div style={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
           {components.map((component) => (
             <div key={component.id} style={{ marginBottom: '20px' }}>
-              {renderComponent(component, tokens, config)}
+              {renderComponent(component, tokens, config, {
+                flightResults,
+                hotelResults,
+                loadingFlights,
+                loadingHotels,
+                onFlightSearch: async (req: any) => {
+                  if (!onFlightSearch) return;
+                  setLoadingFlights(true);
+                  try {
+                    const result = await onFlightSearch(req);
+                    setFlightResults(result.offers);
+                  } finally {
+                    setLoadingFlights(false);
+                  }
+                },
+                onStaySearch: async (req: any) => {
+                  if (!onStaySearch) return;
+                  setLoadingHotels(true);
+                  try {
+                    const result = await onStaySearch(req);
+                    setHotelResults(result.stays);
+                  } finally {
+                    setLoadingHotels(false);
+                  }
+                },
+                locations,
+                config,
+              })}
             </div>
           ))}
         </div>
@@ -158,26 +191,39 @@ export function PageBuilder({ config, locations = [], onFlightSearch, onStaySear
           Add Components
         </h3>
         
-        {(['hero', 'flightSearch', 'hotelSearch', 'flightResults', 'hotelResults', 'text', 'twoColumn', 'spacer'] as ComponentType[]).map((type) => (
-          <button
-            key={type}
-            onClick={() => addComponent(type)}
-            style={{
-              width: '100%',
-              marginBottom: '8px',
-              padding: '10px',
-              background: config.uxHints.primaryColor,
-              color: 'white',
-              border: 'none',
-              borderRadius: tokens.borders.buttonRadius,
-              cursor: 'pointer',
-              fontSize: tokens.typography.bodySize,
-              fontFamily: tokens.typography.fontFamily,
-            }}
-          >
-            + {formatComponentName(type)}
-          </button>
-        ))}
+        {(['hero', 'flightSearch', 'hotelSearch', 'flightResults', 'hotelResults', 'text', 'twoColumn', 'spacer'] as ComponentType[]).map((type) => {
+          // Check if vertical is enabled
+          const isHotelComponent = type === 'hotelSearch' || type === 'hotelResults';
+          const isFlightComponent = type === 'flightSearch' || type === 'flightResults';
+          const isDisabled = 
+            (isHotelComponent && !config.enabledVerticals.includes('stays')) ||
+            (isFlightComponent && !config.enabledVerticals.includes('flights'));
+
+          return (
+            <button
+              key={type}
+              onClick={() => !isDisabled && addComponent(type)}
+              disabled={isDisabled}
+              style={{
+                width: '100%',
+                marginBottom: '8px',
+                padding: '10px',
+                background: isDisabled ? '#d1d5db' : config.uxHints.primaryColor,
+                color: isDisabled ? '#9ca3af' : 'white',
+                border: 'none',
+                borderRadius: tokens.borders.buttonRadius,
+                cursor: isDisabled ? 'not-allowed' : 'pointer',
+                fontSize: tokens.typography.bodySize,
+                fontFamily: tokens.typography.fontFamily,
+                opacity: isDisabled ? 0.6 : 1,
+              }}
+              title={isDisabled ? `${isHotelComponent ? 'Hotels' : 'Flights'} are disabled for this tenant` : ''}
+            >
+              + {formatComponentName(type)}
+              {isDisabled && ' (disabled)'}
+            </button>
+          );
+        })}
 
         <hr style={{ margin: '20px 0', border: 'none', borderTop: '1px solid ' + tokens.colors.border }} />
 
@@ -398,7 +444,7 @@ function getDefaultProps(type: ComponentType): Record<string, any> {
   }
 }
 
-function renderComponent(component: PageComponent, tokens: any, config: TenantConfig) {
+function renderComponent(component: PageComponent, tokens: any, config: TenantConfig, runtime?: any) {
   const { type, props } = component;
 
   switch (type) {
@@ -443,99 +489,25 @@ function renderComponent(component: PageComponent, tokens: any, config: TenantCo
       );
 
     case 'flightSearch':
-      return (
-        <div style={{
-          background: tokens.colors.cardBackground,
-          padding: tokens.spacing.formPadding,
-          borderRadius: tokens.borders.cardRadius,
-          boxShadow: tokens.shadows.form,
-          border: tokens.borders.cardBorderWidth !== '0' ? tokens.borders.cardBorderWidth + ' solid ' + tokens.colors.border : 'none',
-        }}>
-          <h3 style={{
-            fontSize: tokens.typography.headingSize,
-            fontWeight: tokens.typography.headingWeight,
-            color: tokens.colors.textPrimary,
-            marginBottom: '16px',
-          }}>
-            {props.title || 'Search Flights'}
-          </h3>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: tokens.spacing.formGap,
-            marginBottom: '16px',
-          }}>
-            <FormField label="From" placeholder="JFK" tokens={tokens} />
-            <FormField label="To" placeholder="LAX" tokens={tokens} />
-            <FormField label="Departure" type="date" tokens={tokens} />
-            <FormField label="Return" type="date" tokens={tokens} />
-            <FormField label="Passengers" type="number" value="1" tokens={tokens} />
-            <FormField label="Cabin Class" type="select" options={['Economy', 'Business', 'First']} tokens={tokens} />
-          </div>
-          <button style={{
-            background: config.uxHints.primaryColor,
-            color: 'white',
-            padding: tokens.spacing.buttonPadding,
-            border: 'none',
-            borderRadius: tokens.borders.buttonRadius,
-            fontSize: tokens.typography.buttonSize,
-            fontWeight: tokens.typography.buttonWeight,
-            fontFamily: tokens.typography.fontFamily,
-            cursor: 'pointer',
-            width: '100%',
-          }}>
-            {config.uxHints.buttonLabels?.searchFlights || 'Search Flights'}
-          </button>
-        </div>
-      );
-
+      return <FlightSearchComponent tokens={tokens} config={config} onSearch={runtime?.onFlightSearch} loading={runtime?.loadingFlights} />;
+    
     case 'hotelSearch':
-      return (
-        <div style={{
-          background: tokens.colors.cardBackground,
-          padding: tokens.spacing.formPadding,
-          borderRadius: tokens.borders.cardRadius,
-          boxShadow: tokens.shadows.form,
-          border: tokens.borders.cardBorderWidth !== '0' ? tokens.borders.cardBorderWidth + ' solid ' + tokens.colors.border : 'none',
-        }}>
-          <h3 style={{
-            fontSize: tokens.typography.headingSize,
-            fontWeight: tokens.typography.headingWeight,
-            color: tokens.colors.textPrimary,
-            marginBottom: '16px',
-          }}>
-            {props.title || 'Search Hotels'}
-          </h3>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: tokens.spacing.formGap,
-            marginBottom: '16px',
-          }}>
-            <FormField label="Location" type="select" options={['New York', 'London', 'Tokyo', 'Paris']} tokens={tokens} />
-            <FormField label="Check-in" type="date" tokens={tokens} />
-            <FormField label="Check-out" type="date" tokens={tokens} />
-            <FormField label="Guests" type="number" value="2" tokens={tokens} />
-            <FormField label="Rooms" type="number" value="1" tokens={tokens} />
-          </div>
-          <button style={{
-            background: config.uxHints.primaryColor,
-            color: 'white',
-            padding: tokens.spacing.buttonPadding,
-            border: 'none',
-            borderRadius: tokens.borders.buttonRadius,
-            fontSize: tokens.typography.buttonSize,
-            fontWeight: tokens.typography.buttonWeight,
-            fontFamily: tokens.typography.fontFamily,
-            cursor: 'pointer',
-            width: '100%',
-          }}>
-            {config.uxHints.buttonLabels?.searchStays || 'Search Hotels'}
-          </button>
-        </div>
-      );
-
+      return <HotelSearchComponent tokens={tokens} config={config} locations={runtime?.locations || []} onSearch={runtime?.onStaySearch} loading={runtime?.loadingHotels} />;
+    
     case 'flightResults':
+      if (!runtime?.flightResults || runtime.flightResults.length === 0) {
+        return (
+          <div style={{
+            padding: '40px',
+            textAlign: 'center',
+            background: tokens.colors.cardBackground,
+            borderRadius: tokens.borders.cardRadius,
+            color: tokens.colors.textSecondary,
+          }}>
+            Use Flight Search component above to see results here
+          </div>
+        );
+      }
       return (
         <div>
           <h3 style={{
@@ -544,156 +516,49 @@ function renderComponent(component: PageComponent, tokens: any, config: TenantCo
             color: tokens.colors.textPrimary,
             marginBottom: '20px',
           }}>
-            {props.title || 'Flight Results'}
+            {runtime.flightResults.length} Flights Found
           </h3>
-          {props.layout === 'table' && config.uxHints.layout === 'table' ? (
-            <div style={{
-              background: tokens.colors.cardBackground,
-              padding: '20px',
-              borderRadius: tokens.borders.cardRadius,
-              boxShadow: tokens.shadows.card,
-              color: tokens.colors.textSecondary,
-              textAlign: 'center',
-            }}>
-              Table view - Search for flights to see results
-            </div>
+          {config.uxHints.layout === 'table' ? (
+            <FlightTable offers={runtime.flightResults} config={config} />
           ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-              gap: tokens.spacing.cardGap,
-            }}>
-              {[1, 2, 3].map((i) => (
-                <div key={i} style={{
-                  background: tokens.colors.cardBackground,
-                  padding: tokens.spacing.cardPadding,
-                  borderRadius: tokens.borders.cardRadius,
-                  boxShadow: tokens.shadows.card,
-                  border: tokens.borders.cardBorderWidth !== '0' ? tokens.borders.cardBorderWidth + ' solid ' + tokens.colors.border : 'none',
-                }}>
-                  <div style={{
-                    fontSize: tokens.typography.priceSize,
-                    fontWeight: tokens.typography.priceWeight,
-                    color: config.uxHints.priceEmphasis === 'high' ? config.uxHints.primaryColor : tokens.colors.textPrimary,
-                    marginBottom: '8px',
-                  }}>
-                    ${450 + i * 50}
-                  </div>
-                  <div style={{
-                    fontSize: tokens.typography.bodySize,
-                    color: tokens.colors.textSecondary,
-                    marginBottom: '12px',
-                  }}>
-                    Example Airline {i}
-                  </div>
-                  <div style={{
-                    fontSize: '18px',
-                    fontWeight: 600,
-                    color: tokens.colors.textPrimary,
-                    marginBottom: '8px',
-                  }}>
-                    JFK → LAX
-                  </div>
-                  <button style={{
-                    width: '100%',
-                    padding: tokens.spacing.buttonPadding,
-                    background: config.uxHints.primaryColor,
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: tokens.borders.buttonRadius,
-                    fontSize: tokens.typography.buttonSize,
-                    fontWeight: tokens.typography.buttonWeight,
-                    fontFamily: tokens.typography.fontFamily,
-                    cursor: 'pointer',
-                  }}>
-                    {config.uxHints.buttonLabels?.selectFlight || 'Select'}
-                  </button>
-                </div>
-              ))}
-            </div>
+            <FlightCards offers={runtime.flightResults} config={config} />
+          )}
+        </div>
+      );
+    
+    case 'hotelResults':
+      if (!runtime?.hotelResults || runtime.hotelResults.length === 0) {
+        return (
+          <div style={{
+            padding: '40px',
+            textAlign: 'center',
+            background: tokens.colors.cardBackground,
+            borderRadius: tokens.borders.cardRadius,
+            color: tokens.colors.textSecondary,
+          }}>
+            Use Hotel Search component above to see results here
+          </div>
+        );
+      }
+      return (
+        <div>
+          <h3 style={{
+            fontSize: tokens.typography.subheadingSize,
+            fontWeight: tokens.typography.subheadingWeight,
+            color: tokens.colors.textPrimary,
+            marginBottom: '20px',
+          }}>
+            {runtime.hotelResults.length} Hotels Found
+          </h3>
+          {config.uxHints.layout === 'table' ? (
+            <StayTable stays={runtime.hotelResults} config={config} />
+          ) : (
+            <StayCards stays={runtime.hotelResults} config={config} />
           )}
         </div>
       );
 
-    case 'hotelResults':
-      return (
-        <div>
-          <h3 style={{
-            fontSize: tokens.typography.subheadingSize,
-            fontWeight: tokens.typography.subheadingWeight,
-            color: tokens.colors.textPrimary,
-            marginBottom: '20px',
-          }}>
-            {props.title || 'Hotel Results'}
-          </h3>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: tokens.spacing.cardGap,
-          }}>
-            {[1, 2, 3].map((i) => (
-              <div key={i} style={{
-                background: tokens.colors.cardBackground,
-                borderRadius: tokens.borders.cardRadius,
-                overflow: 'hidden',
-                boxShadow: tokens.shadows.card,
-                border: tokens.borders.cardBorderWidth !== '0' ? tokens.borders.cardBorderWidth + ' solid ' + tokens.colors.border : 'none',
-              }}>
-                <div style={{
-                  height: '180px',
-                  background: `linear-gradient(135deg, ${config.uxHints.primaryColor}44 0%, ${config.uxHints.primaryColor}22 100%)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '48px',
-                }}>
-                  🏨
-                </div>
-                <div style={{ padding: '16px' }}>
-                  <div style={{
-                    fontSize: '18px',
-                    fontWeight: 600,
-                    color: tokens.colors.textPrimary,
-                    marginBottom: '8px',
-                  }}>
-                    Example Hotel {i}
-                  </div>
-                  <div style={{
-                    fontSize: '14px',
-                    color: tokens.colors.textSecondary,
-                    marginBottom: '12px',
-                  }}>
-                    ⭐⭐⭐⭐ {(4 + i * 0.2).toFixed(1)}
-                  </div>
-                  <div style={{
-                    fontSize: tokens.typography.priceSize,
-                    fontWeight: tokens.typography.priceWeight,
-                    color: config.uxHints.priceEmphasis === 'high' ? config.uxHints.primaryColor : tokens.colors.textPrimary,
-                    marginBottom: '12px',
-                  }}>
-                    ${200 + i * 100}/night
-                  </div>
-                  <button style={{
-                    width: '100%',
-                    padding: tokens.spacing.buttonPadding,
-                    background: config.uxHints.primaryColor,
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: tokens.borders.buttonRadius,
-                    fontSize: tokens.typography.buttonSize,
-                    fontWeight: tokens.typography.buttonWeight,
-                    fontFamily: tokens.typography.fontFamily,
-                    cursor: 'pointer',
-                  }}>
-                    {config.uxHints.buttonLabels?.selectStay || 'View Details'}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-
+    case 'hotelSearch':
     case 'twoColumn':
       return (
         <div style={{
@@ -795,8 +660,271 @@ function controlButtonStyle(tokens: any) {
   };
 }
 
-function adjustColor(color: string, amount: number): string {
-  // Simple color darkening (for gradient effect)
-  return color; // For simplicity, return same color
+// Functional Flight Search Component
+function FlightSearchComponent({ tokens, config, onSearch, loading }: any) {
+  const [formData, setFormData] = React.useState({
+    origin: 'JFK',
+    destination: 'LAX',
+    departureDate: getDefaultDate(7),
+    returnDate: getDefaultDate(14),
+    passengers: 1,
+    cabinClass: config.flightDefaults.cabinClass,
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onSearch) {
+      await onSearch(formData);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} style={{
+      background: tokens.colors.cardBackground,
+      padding: tokens.spacing.formPadding,
+      borderRadius: tokens.borders.cardRadius,
+      boxShadow: tokens.shadows.form,
+      border: tokens.borders.cardBorderWidth !== '0' ? tokens.borders.cardBorderWidth + ' solid ' + tokens.colors.border : 'none',
+    }}>
+      <h3 style={{
+        fontSize: tokens.typography.headingSize,
+        fontWeight: tokens.typography.headingWeight,
+        color: tokens.colors.textPrimary,
+        marginBottom: '16px',
+      }}>
+        Search Flights
+      </h3>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: tokens.spacing.formGap,
+        marginBottom: '16px',
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: tokens.typography.labelSize, fontWeight: tokens.typography.labelWeight, color: tokens.colors.textSecondary }}>
+            From
+          </label>
+          <input
+            type="text"
+            value={formData.origin}
+            onChange={(e) => setFormData({ ...formData, origin: e.target.value.toUpperCase() })}
+            maxLength={3}
+            required
+            style={{ padding: tokens.spacing.inputPadding, fontSize: tokens.typography.bodySize, fontFamily: tokens.typography.fontFamily, background: tokens.colors.inputBackground, color: tokens.colors.textPrimary, border: '1px solid ' + tokens.colors.inputBorder, borderRadius: tokens.borders.inputRadius }}
+          />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: tokens.typography.labelSize, fontWeight: tokens.typography.labelWeight, color: tokens.colors.textSecondary }}>
+            To
+          </label>
+          <input
+            type="text"
+            value={formData.destination}
+            onChange={(e) => setFormData({ ...formData, destination: e.target.value.toUpperCase() })}
+            maxLength={3}
+            required
+            style={{ padding: tokens.spacing.inputPadding, fontSize: tokens.typography.bodySize, fontFamily: tokens.typography.fontFamily, background: tokens.colors.inputBackground, color: tokens.colors.textPrimary, border: '1px solid ' + tokens.colors.inputBorder, borderRadius: tokens.borders.inputRadius }}
+          />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: tokens.typography.labelSize, fontWeight: tokens.typography.labelWeight, color: tokens.colors.textSecondary }}>
+            Departure
+          </label>
+          <input
+            type="date"
+            value={formData.departureDate}
+            onChange={(e) => setFormData({ ...formData, departureDate: e.target.value })}
+            required
+            style={{ padding: tokens.spacing.inputPadding, fontSize: tokens.typography.bodySize, fontFamily: tokens.typography.fontFamily, background: tokens.colors.inputBackground, color: tokens.colors.textPrimary, border: '1px solid ' + tokens.colors.inputBorder, borderRadius: tokens.borders.inputRadius }}
+          />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: tokens.typography.labelSize, fontWeight: tokens.typography.labelWeight, color: tokens.colors.textSecondary }}>
+            Return
+          </label>
+          <input
+            type="date"
+            value={formData.returnDate}
+            onChange={(e) => setFormData({ ...formData, returnDate: e.target.value })}
+            style={{ padding: tokens.spacing.inputPadding, fontSize: tokens.typography.bodySize, fontFamily: tokens.typography.fontFamily, background: tokens.colors.inputBackground, color: tokens.colors.textPrimary, border: '1px solid ' + tokens.colors.inputBorder, borderRadius: tokens.borders.inputRadius }}
+          />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: tokens.typography.labelSize, fontWeight: tokens.typography.labelWeight, color: tokens.colors.textSecondary }}>
+            Passengers
+          </label>
+          <input
+            type="number"
+            value={formData.passengers}
+            onChange={(e) => setFormData({ ...formData, passengers: parseInt(e.target.value) })}
+            min={1}
+            max={9}
+            required
+            style={{ padding: tokens.spacing.inputPadding, fontSize: tokens.typography.bodySize, fontFamily: tokens.typography.fontFamily, background: tokens.colors.inputBackground, color: tokens.colors.textPrimary, border: '1px solid ' + tokens.colors.inputBorder, borderRadius: tokens.borders.inputRadius }}
+          />
+        </div>
+      </div>
+      <button
+        type="submit"
+        disabled={loading}
+        style={{
+          background: config.uxHints.primaryColor,
+          color: 'white',
+          padding: tokens.spacing.buttonPadding,
+          border: 'none',
+          borderRadius: tokens.borders.buttonRadius,
+          fontSize: tokens.typography.buttonSize,
+          fontWeight: tokens.typography.buttonWeight,
+          fontFamily: tokens.typography.fontFamily,
+          cursor: 'pointer',
+          width: '100%',
+        }}
+      >
+        {loading ? 'Searching...' : config.uxHints.buttonLabels?.searchFlights || 'Search Flights'}
+      </button>
+    </form>
+  );
+}
+
+// Functional Hotel Search Component
+function HotelSearchComponent({ tokens, config, locations, onSearch, loading }: any) {
+  const [formData, setFormData] = React.useState({
+    locationId: locations[0]?.id || 'nyc',
+    checkInDate: getDefaultDate(7),
+    checkOutDate: getDefaultDate(10),
+    guests: 2,
+    rooms: 1,
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // Check if stays is enabled
+    if (!config.enabledVerticals.includes('stays')) {
+      alert('Hotels are not available for ' + config.uxHints.brandName);
+      return;
+    }
+    if (onSearch) {
+      await onSearch(formData);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} style={{
+      background: tokens.colors.cardBackground,
+      padding: tokens.spacing.formPadding,
+      borderRadius: tokens.borders.cardRadius,
+      boxShadow: tokens.shadows.form,
+      border: tokens.borders.cardBorderWidth !== '0' ? tokens.borders.cardBorderWidth + ' solid ' + tokens.colors.border : 'none',
+    }}>
+      <h3 style={{
+        fontSize: tokens.typography.headingSize,
+        fontWeight: tokens.typography.headingWeight,
+        color: tokens.colors.textPrimary,
+        marginBottom: '16px',
+      }}>
+        Search Hotels
+      </h3>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: tokens.spacing.formGap,
+        marginBottom: '16px',
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: tokens.typography.labelSize, fontWeight: tokens.typography.labelWeight, color: tokens.colors.textSecondary }}>
+            Location
+          </label>
+          <select
+            value={formData.locationId}
+            onChange={(e) => setFormData({ ...formData, locationId: e.target.value })}
+            required
+            style={{ padding: tokens.spacing.inputPadding, fontSize: tokens.typography.bodySize, fontFamily: tokens.typography.fontFamily, background: tokens.colors.inputBackground, color: tokens.colors.textPrimary, border: '1px solid ' + tokens.colors.inputBorder, borderRadius: tokens.borders.inputRadius }}
+          >
+            {locations.map((loc: Location) => (
+              <option key={loc.id} value={loc.id}>
+                {loc.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: tokens.typography.labelSize, fontWeight: tokens.typography.labelWeight, color: tokens.colors.textSecondary }}>
+            Check-in
+          </label>
+          <input
+            type="date"
+            value={formData.checkInDate}
+            onChange={(e) => setFormData({ ...formData, checkInDate: e.target.value })}
+            required
+            style={{ padding: tokens.spacing.inputPadding, fontSize: tokens.typography.bodySize, fontFamily: tokens.typography.fontFamily, background: tokens.colors.inputBackground, color: tokens.colors.textPrimary, border: '1px solid ' + tokens.colors.inputBorder, borderRadius: tokens.borders.inputRadius }}
+          />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: tokens.typography.labelSize, fontWeight: tokens.typography.labelWeight, color: tokens.colors.textSecondary }}>
+            Check-out
+          </label>
+          <input
+            type="date"
+            value={formData.checkOutDate}
+            onChange={(e) => setFormData({ ...formData, checkOutDate: e.target.value })}
+            required
+            style={{ padding: tokens.spacing.inputPadding, fontSize: tokens.typography.bodySize, fontFamily: tokens.typography.fontFamily, background: tokens.colors.inputBackground, color: tokens.colors.textPrimary, border: '1px solid ' + tokens.colors.inputBorder, borderRadius: tokens.borders.inputRadius }}
+          />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: tokens.typography.labelSize, fontWeight: tokens.typography.labelWeight, color: tokens.colors.textSecondary }}>
+            Guests
+          </label>
+          <input
+            type="number"
+            value={formData.guests}
+            onChange={(e) => setFormData({ ...formData, guests: parseInt(e.target.value) })}
+            min={1}
+            max={10}
+            required
+            style={{ padding: tokens.spacing.inputPadding, fontSize: tokens.typography.bodySize, fontFamily: tokens.typography.fontFamily, background: tokens.colors.inputBackground, color: tokens.colors.textPrimary, border: '1px solid ' + tokens.colors.inputBorder, borderRadius: tokens.borders.inputRadius }}
+          />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: tokens.typography.labelSize, fontWeight: tokens.typography.labelWeight, color: tokens.colors.textSecondary }}>
+            Rooms
+          </label>
+          <input
+            type="number"
+            value={formData.rooms}
+            onChange={(e) => setFormData({ ...formData, rooms: parseInt(e.target.value) })}
+            min={1}
+            max={5}
+            required
+            style={{ padding: tokens.spacing.inputPadding, fontSize: tokens.typography.bodySize, fontFamily: tokens.typography.fontFamily, background: tokens.colors.inputBackground, color: tokens.colors.textPrimary, border: '1px solid ' + tokens.colors.inputBorder, borderRadius: tokens.borders.inputRadius }}
+          />
+        </div>
+      </div>
+      <button
+        type="submit"
+        disabled={loading}
+        style={{
+          background: config.uxHints.primaryColor,
+          color: 'white',
+          padding: tokens.spacing.buttonPadding,
+          border: 'none',
+          borderRadius: tokens.borders.buttonRadius,
+          fontSize: tokens.typography.buttonSize,
+          fontWeight: tokens.typography.buttonWeight,
+          fontFamily: tokens.typography.fontFamily,
+          cursor: 'pointer',
+          width: '100%',
+        }}
+      >
+        {loading ? 'Searching...' : config.uxHints.buttonLabels?.searchStays || 'Search Hotels'}
+      </button>
+    </form>
+  );
+}
+
+function getDefaultDate(daysFromNow: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() + daysFromNow);
+  return date.toISOString().split('T')[0]!;
 }
 

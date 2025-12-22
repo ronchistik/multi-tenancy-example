@@ -12,11 +12,12 @@ const TENANTS = [
 
 interface TenantPickerProps {
   currentTenant: string;
+  tenantName?: string;
   onTenantChange: (tenantId: string) => void;
   onNavigateToBuilder: () => void;
 }
 
-export function TenantPicker({ currentTenant, onTenantChange, onNavigateToBuilder }: TenantPickerProps) {
+export function TenantPicker({ currentTenant, tenantName, onTenantChange, onNavigateToBuilder }: TenantPickerProps) {
   return (
     <div style={styles.container}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -38,7 +39,7 @@ export function TenantPicker({ currentTenant, onTenantChange, onNavigateToBuilde
         onClick={onNavigateToBuilder}
         style={styles.builderButton}
       >
-        🎨 Build Your Own Page
+        🎨 Build {tenantName || 'Your'} Page
       </button>
     </div>
   );
