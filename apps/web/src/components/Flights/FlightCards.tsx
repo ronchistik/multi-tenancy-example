@@ -41,9 +41,20 @@ export function FlightCards({ offers, config }: FlightCardsProps) {
             <div style={styles.preferredBadge}>✓ Preferred</div>
           )}
           
-          {/* Promotional badges */}
-          {offer.policy?.promotions && offer.policy.promotions.map((promo, idx) => (
-            <div key={idx} style={styles.promoBadge}>
+          {/* Promotional badges - shown above content */}
+          {config.uxHints.showPromotions && offer.policy?.promotions && offer.policy.promotions.map((promo, idx) => (
+            <div key={idx} style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              padding: '10px 16px',
+              borderRadius: '8px',
+              fontSize: tokens.typography.bodySize,
+              fontWeight: 600,
+              fontFamily: tokens.typography.fontFamily,
+              boxShadow: '0 2px 8px rgba(102, 126, 234, 0.4)',
+              marginBottom: '16px',
+              textAlign: 'center',
+            }}>
               ✨ {promo.message}
             </div>
           ))}
