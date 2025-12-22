@@ -11,23 +11,21 @@ interface StayCardsProps {
 }
 
 export function StayCards({ stays, config }: StayCardsProps) {
-  const isDark = config.uxHints.theme === 'dark';
-  const isPriceHigh = config.uxHints.priceEmphasis === 'high';
-  const isPriceLow = config.uxHints.priceEmphasis === 'low';
+  const tokens = config.uxHints.designTokens;
 
   if (stays.length === 0) {
     return <p style={{
-      ...styles.empty,
-      color: isDark ? '#888' : '#999',
+      textAlign: 'center',
+      padding: '40px',
+      color: tokens.colors.textSecondary,
     }}>No hotels found</p>;
   }
 
   return (
     <div style={{
-      ...styles.grid,
-      gridTemplateColumns: isPriceLow ? 'repeat(auto-fill, minmax(420px, 1fr))' : 
-                          'repeat(auto-fill, minmax(300px, 1fr))',
-      gap: isPriceLow ? '32px' : '20px',
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+      gap: tokens.spacing.cardGap,
     }}>
       {stays.map((stay) => {
         const rate = stay.rates[0];
@@ -35,10 +33,11 @@ export function StayCards({ stays, config }: StayCardsProps) {
 
         return (
           <div key={stay.id} style={{
-            ...styles.card,
-            background: isDark ? 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%)' : 'white',
-            border: isDark ? '1px solid #3a3a3a' : 'none',
-            boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.6)' : '0 2px 8px rgba(0,0,0,0.1)',
+            background: tokens.colors.cardBackground,
+            borderRadius: tokens.borders.cardRadius,
+            overflow: 'hidden',
+            boxShadow: tokens.shadows.card,
+            border: tokens.borders.cardBorderWidth !== '0' ? tokens.borders.cardBorderWidth + ' solid ' + tokens.colors.border : 'none',
           }}>
             {/* Photo */}
             {stay.accommodation.photos && stay.accommodation.photos[0] && (
@@ -51,18 +50,18 @@ export function StayCards({ stays, config }: StayCardsProps) {
 
             {/* Name */}
             <div style={{
-              ...styles.name,
-              color: isDark ? '#e5e5e5' : '#333',
-              fontSize: isPriceLow ? '22px' : '18px',
-              fontWeight: isPriceLow ? 300 : 600,
+              fontSize: '18px',
+              fontWeight: 600,
+              padding: '16px 16px 8px',
+              color: tokens.colors.textPrimary,
             }}>{stay.accommodation.name}</div>
 
             {/* Rating */}
             {stay.accommodation.rating && (
               <div style={{
-                ...styles.rating,
-                color: isDark ? '#d4af37' : '#666',
-                fontSize: isPriceLow ? '16px' : '14px',
+                fontSize: '14px',
+                padding: '0 16px 8px',
+                color: tokens.colors.textSecondary,
               }}>
                 {'⭐'.repeat(Math.floor(stay.accommodation.rating))} {stay.accommodation.rating.toFixed(1)}
               </div>
@@ -71,28 +70,25 @@ export function StayCards({ stays, config }: StayCardsProps) {
             {/* Location */}
             {stay.accommodation.location?.city && (
               <div style={{
-                ...styles.location,
-                color: isDark ? '#888' : '#999',
+                fontSize: '14px',
+                padding: '0 16px 8px',
+                color: tokens.colors.textSecondary,
               }}>{stay.accommodation.location.city}</div>
             )}
 
             {/* Price */}
             {rate && (
               <div style={{
-                ...styles.price,
-                fontSize: isPriceHigh ? '36px' : isPriceLow ? '32px' : '20px',
-                fontWeight: isPriceHigh ? 800 : isPriceLow ? 300 : 700,
-                color: isPriceHigh ? config.uxHints.primaryColor : isDark ? '#ffffff' : '#333',
-                textAlign: isPriceHigh ? 'center' : 'left',
+                padding: '8px 16px',
+                fontSize: tokens.typography.priceSize,
+                fontWeight: tokens.typography.priceWeight,
+                color: config.uxHints.priceEmphasis === 'high' ? config.uxHints.primaryColor : tokens.colors.textPrimary,
               }}>
                 ${parseFloat(rate.price.amount).toFixed(0)}
                 <span style={{
-                  ...styles.perNight,
-                  color: isDark ? '#999' : '#666',
-                  fontSize: isPriceHigh ? '16px' : '14px',
-                  display: isPriceHigh ? 'block' : 'inline',
-                  marginTop: isPriceHigh ? '4px' : '0',
-                  marginLeft: isPriceHigh ? '0' : '4px',
+                  fontSize: '14px',
+                  fontWeight: 400,
+                  color: tokens.colors.textSecondary,
                 }}>/night</span>
               </div>
             )}
@@ -111,9 +107,23 @@ export function StayCards({ stays, config }: StayCardsProps) {
               ))}
 
             <button
-              style={{ ...styles.button, background: config.uxHints.primaryColor }}
+              style={{ 
+                width: 'calc(100% - 32px)',
+                margin: '0 16px 16px',
+                cursor: 'pointer',
+                border: 'none',
+                transition: 'all 0.2s',
+                background: config.uxHints.primaryColor,
+                color: 'white',
+                fontSize: tokens.typography.buttonSize,
+                fontWeight: tokens.typography.buttonWeight,
+                padding: tokens.spacing.buttonPadding,
+                borderRadius: tokens.borders.buttonRadius,
+                textTransform: config.uxHints.priceEmphasis === 'low' ? 'uppercase' : 'none',
+                letterSpacing: config.uxHints.priceEmphasis === 'low' ? '1px' : 'normal',
+              }}
             >
-              View Details
+              {config.uxHints.buttonLabels?.selectStay || 'View Details'}
             </button>
           </div>
         );

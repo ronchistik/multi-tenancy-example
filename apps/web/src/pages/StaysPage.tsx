@@ -42,33 +42,53 @@ export function StaysPage({ config, locations, onSearch }: StaysPageProps) {
   };
 
   const isTableLayout = config.uxHints.layout === 'table';
-  const isDark = config.uxHints.theme === 'dark';
-  const isPriceHigh = config.uxHints.priceEmphasis === 'high';
+  const tokens = config.uxHints.designTokens;
 
   return (
     <div>
       <h2 style={{
-        ...styles.title,
-        color: isDark ? '#e5e5e5' : '#333',
-        fontSize: isPriceHigh ? '28px' : isTableLayout ? '20px' : '24px',
+        fontSize: tokens.typography.headingSize,
+        fontWeight: tokens.typography.headingWeight,
+        color: tokens.colors.textPrimary,
+        marginBottom: '20px',
       }}>
-        {isDark ? 'Search Luxury Accommodations' : 'Search Hotels'}
+        {config.uxHints.priceEmphasis === 'low' ? 'Search Luxury Accommodations' : 'Search Hotels'}
       </h2>
 
       <form onSubmit={handleSearch} style={{
-        ...styles.form,
-        background: isDark ? '#2a2a2a' : 'white',
-        border: isDark ? '1px solid #3a3a3a' : 'none',
-        boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.1)',
+        background: tokens.colors.cardBackground,
+        padding: tokens.spacing.formPadding,
+        borderRadius: tokens.borders.cardRadius,
+        marginBottom: '30px',
+        boxShadow: tokens.shadows.form,
+        border: tokens.borders.cardBorderWidth !== '0' ? tokens.borders.cardBorderWidth + ' solid ' + tokens.colors.border : 'none',
       }}>
-        <div style={styles.formRow}>
-          <div style={styles.field}>
-            <label style={styles.label}>Location</label>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: isTableLayout ? 'repeat(5, 1fr)' : 'repeat(auto-fit, minmax(150px, 1fr))',
+          gap: tokens.spacing.formGap,
+          marginBottom: '16px',
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{
+              fontSize: tokens.typography.labelSize,
+              fontWeight: tokens.typography.labelWeight,
+              color: tokens.colors.textSecondary,
+            }}>Location</label>
             <select
               value={formData.locationId}
               onChange={(e) => setFormData({ ...formData, locationId: e.target.value })}
               required
-              style={styles.input}
+              style={{
+                padding: tokens.spacing.inputPadding,
+                fontSize: tokens.typography.bodySize,
+                fontWeight: tokens.typography.bodyWeight,
+                fontFamily: tokens.typography.fontFamily,
+                background: tokens.colors.inputBackground,
+                color: tokens.colors.textPrimary,
+                border: '1px solid ' + tokens.colors.inputBorder,
+                borderRadius: tokens.borders.inputRadius,
+              }}
             >
               {locations.map((loc) => (
                 <option key={loc.id} value={loc.id}>
@@ -78,30 +98,60 @@ export function StaysPage({ config, locations, onSearch }: StaysPageProps) {
             </select>
           </div>
 
-          <div style={styles.field}>
-            <label style={styles.label}>Check-in</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{
+              fontSize: tokens.typography.labelSize,
+              fontWeight: tokens.typography.labelWeight,
+              color: tokens.colors.textSecondary,
+            }}>Check-in</label>
             <input
               type="date"
               value={formData.checkInDate}
               onChange={(e) => setFormData({ ...formData, checkInDate: e.target.value })}
               required
-              style={styles.input}
+              style={{
+                padding: tokens.spacing.inputPadding,
+                fontSize: tokens.typography.bodySize,
+                fontWeight: tokens.typography.bodyWeight,
+                fontFamily: tokens.typography.fontFamily,
+                background: tokens.colors.inputBackground,
+                color: tokens.colors.textPrimary,
+                border: '1px solid ' + tokens.colors.inputBorder,
+                borderRadius: tokens.borders.inputRadius,
+              }}
             />
           </div>
 
-          <div style={styles.field}>
-            <label style={styles.label}>Check-out</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{
+              fontSize: tokens.typography.labelSize,
+              fontWeight: tokens.typography.labelWeight,
+              color: tokens.colors.textSecondary,
+            }}>Check-out</label>
             <input
               type="date"
               value={formData.checkOutDate}
               onChange={(e) => setFormData({ ...formData, checkOutDate: e.target.value })}
               required
-              style={styles.input}
+              style={{
+                padding: tokens.spacing.inputPadding,
+                fontSize: tokens.typography.bodySize,
+                fontWeight: tokens.typography.bodyWeight,
+                fontFamily: tokens.typography.fontFamily,
+                background: tokens.colors.inputBackground,
+                color: tokens.colors.textPrimary,
+                border: '1px solid ' + tokens.colors.inputBorder,
+                borderRadius: tokens.borders.inputRadius,
+              }}
             />
           </div>
 
-          <div style={styles.field}>
-            <label style={styles.label}>Guests</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{
+              fontSize: tokens.typography.labelSize,
+              fontWeight: tokens.typography.labelWeight,
+              color: tokens.colors.textSecondary,
+            }}>Guests</label>
             <input
               type="number"
               value={formData.guests}
@@ -109,12 +159,25 @@ export function StaysPage({ config, locations, onSearch }: StaysPageProps) {
               min={1}
               max={10}
               required
-              style={styles.input}
+              style={{
+                padding: tokens.spacing.inputPadding,
+                fontSize: tokens.typography.bodySize,
+                fontWeight: tokens.typography.bodyWeight,
+                fontFamily: tokens.typography.fontFamily,
+                background: tokens.colors.inputBackground,
+                color: tokens.colors.textPrimary,
+                border: '1px solid ' + tokens.colors.inputBorder,
+                borderRadius: tokens.borders.inputRadius,
+              }}
             />
           </div>
 
-          <div style={styles.field}>
-            <label style={styles.label}>Rooms</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{
+              fontSize: tokens.typography.labelSize,
+              fontWeight: tokens.typography.labelWeight,
+              color: tokens.colors.textSecondary,
+            }}>Rooms</label>
             <input
               type="number"
               value={formData.rooms}
@@ -122,7 +185,16 @@ export function StaysPage({ config, locations, onSearch }: StaysPageProps) {
               min={1}
               max={5}
               required
-              style={styles.input}
+              style={{
+                padding: tokens.spacing.inputPadding,
+                fontSize: tokens.typography.bodySize,
+                fontWeight: tokens.typography.bodyWeight,
+                fontFamily: tokens.typography.fontFamily,
+                background: tokens.colors.inputBackground,
+                color: tokens.colors.textPrimary,
+                border: '1px solid ' + tokens.colors.inputBorder,
+                borderRadius: tokens.borders.inputRadius,
+              }}
             />
           </div>
         </div>
@@ -130,9 +202,22 @@ export function StaysPage({ config, locations, onSearch }: StaysPageProps) {
         <button
           type="submit"
           disabled={loading}
-          style={{ ...styles.button, background: config.uxHints.primaryColor }}
+          style={{ 
+            cursor: 'pointer',
+            border: 'none',
+            transition: 'all 0.2s',
+            background: config.uxHints.primaryColor,
+            color: 'white',
+            fontFamily: tokens.typography.fontFamily,
+            fontSize: tokens.typography.buttonSize,
+            fontWeight: tokens.typography.buttonWeight,
+            padding: tokens.spacing.buttonPadding,
+            borderRadius: tokens.borders.buttonRadius,
+            textTransform: config.uxHints.priceEmphasis === 'low' ? 'uppercase' : 'none',
+            letterSpacing: config.uxHints.priceEmphasis === 'low' ? '1px' : 'normal',
+          }}
         >
-          {loading ? 'Searching...' : 'Search Hotels'}
+          {loading ? 'Searching...' : config.uxHints.buttonLabels?.searchStays || 'Search Hotels'}
         </button>
       </form>
 

@@ -58,6 +58,58 @@ export interface PolicyRule {
 }
 
 /**
+ * Design system tokens for page builder
+ */
+export interface DesignTokens {
+  colors: {
+    background: string;
+    cardBackground: string;
+    textPrimary: string;
+    textSecondary: string;
+    border: string;
+    inputBackground: string;
+    inputBorder: string;
+    error: string;
+    errorBackground: string;
+    success: string;
+  };
+  typography: {
+    fontFamily: string;
+    headingSize: string;
+    headingWeight: number;
+    subheadingSize: string;
+    subheadingWeight: number;
+    bodySize: string;
+    bodyWeight: number;
+    labelSize: string;
+    labelWeight: number;
+    priceSize: string;
+    priceWeight: number;
+    buttonSize: string;
+    buttonWeight: number;
+  };
+  spacing: {
+    cardPadding: string;
+    cardGap: string;
+    formPadding: string;
+    formGap: string;
+    inputPadding: string;
+    buttonPadding: string;
+  };
+  borders: {
+    cardRadius: string;
+    inputRadius: string;
+    buttonRadius: string;
+    cardBorderWidth: string;
+  };
+  shadows: {
+    card: string;
+    cardHover: string;
+    form: string;
+  };
+}
+
+/**
  * UX hints for frontend customization
  */
 export interface UxHints {
@@ -76,6 +128,7 @@ export interface UxHints {
     selectFlight?: string;
     selectStay?: string;
   };
+  designTokens: DesignTokens; // REQUIRED - must always be present
 }
 
 /**
@@ -101,6 +154,7 @@ export interface Tenant {
 /**
  * Public tenant config (safe to send to frontend)
  * Excludes sensitive data like API keys
+ * Includes full UxHints with designTokens
  */
 export interface PublicTenantConfig {
   id: TenantId;
@@ -108,7 +162,7 @@ export interface PublicTenantConfig {
   enabledVerticals: Vertical[];
   flightDefaults: FlightDefaults;
   stayDefaults: StayDefaults;
-  uxHints: UxHints;
+  uxHints: UxHints; // Includes designTokens
 }
 
 /**

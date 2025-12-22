@@ -11,7 +11,7 @@ export function toPublicTenantConfig(tenant: Tenant): PublicTenantConfig {
     enabledVerticals: tenant.enabledVerticals,
     flightDefaults: tenant.flightDefaults,
     stayDefaults: tenant.stayDefaults,
-    uxHints: tenant.uxHints,
+    uxHints: tenant.uxHints, // This includes designTokens
   };
 }
 

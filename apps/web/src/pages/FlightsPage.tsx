@@ -42,39 +42,38 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
   };
 
   const isTableLayout = config.uxHints.layout === 'table';
-  const isDark = config.uxHints.theme === 'dark';
-  const isPriceHigh = config.uxHints.priceEmphasis === 'high';
+  const tokens = config.uxHints.designTokens;
 
   return (
     <div>
       <h2 style={{
-        ...styles.title,
-        color: isDark ? '#e5e5e5' : '#333',
-        fontSize: isPriceHigh ? '26px' : isTableLayout ? '20px' : '24px',
-        fontWeight: isPriceHigh ? 700 : 600,
+        fontSize: tokens.typography.headingSize,
+        fontWeight: tokens.typography.headingWeight,
+        color: tokens.colors.textPrimary,
+        marginBottom: '20px',
       }}>
-        {isPriceHigh ? 'Search Flights' : 
-         isDark ? 'Search Premium Flights' : 
-         'Flight Search'}
+        {config.uxHints.priceEmphasis === 'low' ? 'Search Premium Flights' : 'Search Flights'}
       </h2>
 
       <form onSubmit={handleSearch} style={{
-        ...styles.form,
-        background: isDark ? '#2a2a2a' : 'white',
-        border: isDark ? '1px solid #3a3a3a' : isPriceHigh ? '3px solid ' + config.uxHints.primaryColor : 'none',
-        boxShadow: isPriceHigh ? '0 4px 12px rgba(16, 185, 129, 0.15)' : isDark ? '0 4px 20px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.1)',
+        background: tokens.colors.cardBackground,
+        padding: tokens.spacing.formPadding,
+        borderRadius: tokens.borders.cardRadius,
+        marginBottom: '30px',
+        boxShadow: tokens.shadows.form,
+        border: tokens.borders.cardBorderWidth !== '0' ? tokens.borders.cardBorderWidth + ' solid ' + tokens.colors.border : 'none',
       }}>
         <div style={{
-          ...styles.formRow,
+          display: 'grid',
           gridTemplateColumns: isTableLayout ? 'repeat(6, 1fr)' : 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: isPriceHigh ? '20px' : '16px',
+          gap: tokens.spacing.formGap,
+          marginBottom: '16px',
         }}>
-          <div style={styles.field}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <label style={{
-              ...styles.label,
-              color: isDark ? '#a0a0a0' : '#555',
-              fontSize: isPriceHigh ? '15px' : '14px',
-              fontWeight: isPriceHigh ? 600 : 500,
+              fontSize: tokens.typography.labelSize,
+              fontWeight: tokens.typography.labelWeight,
+              color: tokens.colors.textSecondary,
             }}>From</label>
             <input
               type="text"
@@ -84,22 +83,22 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
               maxLength={3}
               required
               style={{
-                ...styles.input,
-                background: isDark ? '#1a1a1a' : 'white',
-                color: isDark ? '#e5e5e5' : '#333',
-                border: isDark ? '1px solid #4a4a4a' : isPriceHigh ? '2px solid #e5e7eb' : '1px solid #ddd',
-                fontSize: isPriceHigh ? '16px' : '14px',
-                padding: isPriceHigh ? '12px' : '8px 12px',
+                padding: tokens.spacing.inputPadding,
+                fontSize: tokens.typography.bodySize,
+                fontWeight: tokens.typography.bodyWeight,
+                background: tokens.colors.inputBackground,
+                color: tokens.colors.textPrimary,
+                border: '1px solid ' + tokens.colors.inputBorder,
+                borderRadius: tokens.borders.inputRadius,
               }}
             />
           </div>
 
-          <div style={styles.field}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <label style={{
-              ...styles.label,
-              color: isDark ? '#a0a0a0' : '#555',
-              fontSize: isPriceHigh ? '15px' : '14px',
-              fontWeight: isPriceHigh ? 600 : 500,
+              fontSize: tokens.typography.labelSize,
+              fontWeight: tokens.typography.labelWeight,
+              color: tokens.colors.textSecondary,
             }}>To</label>
             <input
               type="text"
@@ -109,22 +108,22 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
               maxLength={3}
               required
               style={{
-                ...styles.input,
-                background: isDark ? '#1a1a1a' : 'white',
-                color: isDark ? '#e5e5e5' : '#333',
-                border: isDark ? '1px solid #4a4a4a' : isPriceHigh ? '2px solid #e5e7eb' : '1px solid #ddd',
-                fontSize: isPriceHigh ? '16px' : '14px',
-                padding: isPriceHigh ? '12px' : '8px 12px',
+                padding: tokens.spacing.inputPadding,
+                fontSize: tokens.typography.bodySize,
+                fontWeight: tokens.typography.bodyWeight,
+                background: tokens.colors.inputBackground,
+                color: tokens.colors.textPrimary,
+                border: '1px solid ' + tokens.colors.inputBorder,
+                borderRadius: tokens.borders.inputRadius,
               }}
             />
           </div>
 
-          <div style={styles.field}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <label style={{
-              ...styles.label,
-              color: isDark ? '#a0a0a0' : '#555',
-              fontSize: isPriceHigh ? '15px' : '14px',
-              fontWeight: isPriceHigh ? 600 : 500,
+              fontSize: tokens.typography.labelSize,
+              fontWeight: tokens.typography.labelWeight,
+              color: tokens.colors.textSecondary,
             }}>Departure</label>
             <input
               type="date"
@@ -132,44 +131,44 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
               onChange={(e) => setFormData({ ...formData, departureDate: e.target.value })}
               required
               style={{
-                ...styles.input,
-                background: isDark ? '#1a1a1a' : 'white',
-                color: isDark ? '#e5e5e5' : '#333',
-                border: isDark ? '1px solid #4a4a4a' : isPriceHigh ? '2px solid #e5e7eb' : '1px solid #ddd',
-                fontSize: isPriceHigh ? '16px' : '14px',
-                padding: isPriceHigh ? '12px' : '8px 12px',
+                padding: tokens.spacing.inputPadding,
+                fontSize: tokens.typography.bodySize,
+                fontWeight: tokens.typography.bodyWeight,
+                background: tokens.colors.inputBackground,
+                color: tokens.colors.textPrimary,
+                border: '1px solid ' + tokens.colors.inputBorder,
+                borderRadius: tokens.borders.inputRadius,
               }}
             />
           </div>
 
-          <div style={styles.field}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <label style={{
-              ...styles.label,
-              color: isDark ? '#a0a0a0' : '#555',
-              fontSize: isPriceHigh ? '15px' : '14px',
-              fontWeight: isPriceHigh ? 600 : 500,
+              fontSize: tokens.typography.labelSize,
+              fontWeight: tokens.typography.labelWeight,
+              color: tokens.colors.textSecondary,
             }}>Return</label>
             <input
               type="date"
               value={formData.returnDate || ''}
               onChange={(e) => setFormData({ ...formData, returnDate: e.target.value })}
               style={{
-                ...styles.input,
-                background: isDark ? '#1a1a1a' : 'white',
-                color: isDark ? '#e5e5e5' : '#333',
-                border: isDark ? '1px solid #4a4a4a' : isPriceHigh ? '2px solid #e5e7eb' : '1px solid #ddd',
-                fontSize: isPriceHigh ? '16px' : '14px',
-                padding: isPriceHigh ? '12px' : '8px 12px',
+                padding: tokens.spacing.inputPadding,
+                fontSize: tokens.typography.bodySize,
+                fontWeight: tokens.typography.bodyWeight,
+                background: tokens.colors.inputBackground,
+                color: tokens.colors.textPrimary,
+                border: '1px solid ' + tokens.colors.inputBorder,
+                borderRadius: tokens.borders.inputRadius,
               }}
             />
           </div>
 
-          <div style={styles.field}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <label style={{
-              ...styles.label,
-              color: isDark ? '#a0a0a0' : '#555',
-              fontSize: isPriceHigh ? '15px' : '14px',
-              fontWeight: isPriceHigh ? 600 : 500,
+              fontSize: tokens.typography.labelSize,
+              fontWeight: tokens.typography.labelWeight,
+              color: tokens.colors.textSecondary,
             }}>Passengers</label>
             <input
               type="number"
@@ -179,33 +178,34 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
               max={9}
               required
               style={{
-                ...styles.input,
-                background: isDark ? '#1a1a1a' : 'white',
-                color: isDark ? '#e5e5e5' : '#333',
-                border: isDark ? '1px solid #4a4a4a' : isPriceHigh ? '2px solid #e5e7eb' : '1px solid #ddd',
-                fontSize: isPriceHigh ? '16px' : '14px',
-                padding: isPriceHigh ? '12px' : '8px 12px',
+                padding: tokens.spacing.inputPadding,
+                fontSize: tokens.typography.bodySize,
+                fontWeight: tokens.typography.bodyWeight,
+                background: tokens.colors.inputBackground,
+                color: tokens.colors.textPrimary,
+                border: '1px solid ' + tokens.colors.inputBorder,
+                borderRadius: tokens.borders.inputRadius,
               }}
             />
           </div>
 
-          <div style={styles.field}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <label style={{
-              ...styles.label,
-              color: isDark ? '#a0a0a0' : '#555',
-              fontSize: isPriceHigh ? '15px' : '14px',
-              fontWeight: isPriceHigh ? 600 : 500,
+              fontSize: tokens.typography.labelSize,
+              fontWeight: tokens.typography.labelWeight,
+              color: tokens.colors.textSecondary,
             }}>Cabin Class</label>
             <select
               value={formData.cabinClass || config.flightDefaults.cabinClass}
               onChange={(e) => setFormData({ ...formData, cabinClass: e.target.value as any })}
               style={{
-                ...styles.input,
-                background: isDark ? '#1a1a1a' : 'white',
-                color: isDark ? '#e5e5e5' : '#333',
-                border: isDark ? '1px solid #4a4a4a' : isPriceHigh ? '2px solid #e5e7eb' : '1px solid #ddd',
-                fontSize: isPriceHigh ? '16px' : '14px',
-                padding: isPriceHigh ? '12px' : '8px 12px',
+                padding: tokens.spacing.inputPadding,
+                fontSize: tokens.typography.bodySize,
+                fontWeight: tokens.typography.bodyWeight,
+                background: tokens.colors.inputBackground,
+                color: tokens.colors.textPrimary,
+                border: '1px solid ' + tokens.colors.inputBorder,
+                borderRadius: tokens.borders.inputRadius,
               }}
             >
               <option value="economy">Economy</option>
@@ -220,13 +220,18 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
           type="submit"
           disabled={loading}
           style={{ 
-            ...styles.button, 
+            cursor: 'pointer',
+            border: 'none',
+            transition: 'all 0.2s',
             background: config.uxHints.primaryColor,
-            fontSize: isPriceHigh ? '18px' : '16px',
-            padding: isPriceHigh ? '16px 32px' : isTableLayout ? '10px 20px' : '12px 24px',
-            fontWeight: isPriceHigh ? 700 : 600,
-            textTransform: isDark ? 'uppercase' : 'none',
-            letterSpacing: isDark ? '1px' : 'normal',
+            color: 'white',
+            fontFamily: tokens.typography.fontFamily,
+            fontSize: tokens.typography.buttonSize,
+            fontWeight: tokens.typography.buttonWeight,
+            padding: tokens.spacing.buttonPadding,
+            borderRadius: tokens.borders.buttonRadius,
+            textTransform: config.uxHints.priceEmphasis === 'low' ? 'uppercase' : 'none',
+            letterSpacing: config.uxHints.priceEmphasis === 'low' ? '1px' : 'normal',
           }}
         >
           {loading ? 'Searching...' : config.uxHints.buttonLabels?.searchFlights || 'Search Flights'}
@@ -234,21 +239,22 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
       </form>
 
       {error && <div style={{
-        ...styles.error,
-        background: isDark ? '#3a1a1a' : '#fee',
-        color: isDark ? '#ff6b6b' : '#c00',
-        border: isDark ? '1px solid #4a2a2a' : 'none',
+        background: tokens.colors.errorBackground,
+        color: tokens.colors.error,
+        padding: '12px',
+        borderRadius: tokens.borders.cardRadius,
+        marginBottom: '20px',
       }}>Error: {error}</div>}
 
       {offers.length > 0 && (
-        <div style={styles.results}>
+        <div style={{ marginTop: '30px' }}>
           <h3 style={{
-            ...styles.resultsTitle,
-            color: isDark ? '#e5e5e5' : '#333',
-            fontSize: isPriceHigh ? '22px' : '18px',
+            fontSize: tokens.typography.subheadingSize,
+            fontWeight: tokens.typography.subheadingWeight,
+            color: tokens.colors.textPrimary,
+            marginBottom: '20px',
           }}>
-            {isPriceHigh ? `${offers.length} Budget Flight${offers.length !== 1 ? 's' : ''} Found` :
-             isTableLayout ? `Results: ${offers.length} flight${offers.length !== 1 ? 's' : ''}` :
+            {isTableLayout ? `Results: ${offers.length} flight${offers.length !== 1 ? 's' : ''}` :
              `${offers.length} flight${offers.length !== 1 ? 's' : ''} found`}
           </h3>
           {isTableLayout ? (

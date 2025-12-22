@@ -32,6 +32,54 @@ export interface TenantConfig {
       selectFlight?: string;
       selectStay?: string;
     };
+    designTokens: { // REQUIRED
+      colors: {
+        background: string;
+        cardBackground: string;
+        textPrimary: string;
+        textSecondary: string;
+        border: string;
+        inputBackground: string;
+        inputBorder: string;
+        error: string;
+        errorBackground: string;
+        success: string;
+      };
+      typography: {
+        fontFamily: string;
+        headingSize: string;
+        headingWeight: number;
+        subheadingSize: string;
+        subheadingWeight: number;
+        bodySize: string;
+        bodyWeight: number;
+        labelSize: string;
+        labelWeight: number;
+        priceSize: string;
+        priceWeight: number;
+        buttonSize: string;
+        buttonWeight: number;
+      };
+      spacing: {
+        cardPadding: string;
+        cardGap: string;
+        formPadding: string;
+        formGap: string;
+        inputPadding: string;
+        buttonPadding: string;
+      };
+      borders: {
+        cardRadius: string;
+        inputRadius: string;
+        buttonRadius: string;
+        cardBorderWidth: string;
+      };
+      shadows: {
+        card: string;
+        cardHover: string;
+        form: string;
+      };
+    };
   };
 }
 

@@ -11,43 +11,48 @@ interface LayoutProps {
 }
 
 export function Layout({ config, children }: LayoutProps) {
-  const isDark = config.uxHints.theme === 'dark';
+  const tokens = config.uxHints.designTokens;
   const isDense = config.uxHints.layout === 'table';
-  const isPriceHigh = config.uxHints.priceEmphasis === 'high';
-  const isPriceLow = config.uxHints.priceEmphasis === 'low';
   
   return (
     <div style={{
-      ...styles.container,
-      background: isDark ? '#1a1a1a' : isDense ? '#f8f9fa' : '#ffffff',
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      background: tokens.colors.background,
+      fontFamily: tokens.typography.fontFamily,
+      color: tokens.colors.textPrimary,
     }}>
       <header style={{ 
-        ...styles.header, 
+        color: 'white',
+        padding: isDense ? '12px 20px' : '28px 20px',
+        textAlign: 'center',
         background: config.uxHints.primaryColor,
-        padding: isDense ? '12px 20px' : isPriceHigh ? '28px 20px' : '24px 20px',
         boxShadow: isDense ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
       }}>
         <h1 style={{
-          ...styles.title,
-          fontSize: isPriceHigh ? '32px' : isPriceLow ? '28px' : '22px',
-          fontWeight: isPriceHigh ? 700 : isPriceLow ? 300 : 600,
-          letterSpacing: isPriceLow ? '2px' : 'normal',
-          textTransform: isPriceLow ? 'uppercase' : 'none',
+          fontSize: tokens.typography.headingSize,
+          fontWeight: tokens.typography.headingWeight,
+          marginBottom: '4px',
+          letterSpacing: config.uxHints.priceEmphasis === 'low' ? '2px' : 'normal',
+          textTransform: config.uxHints.priceEmphasis === 'low' ? 'uppercase' : 'none',
         }}>
           {config.uxHints.brandName}
         </h1>
         <p style={{
-          ...styles.subtitle,
-          fontSize: isPriceHigh ? '15px' : '14px',
+          fontSize: tokens.typography.bodySize,
+          opacity: 0.9,
           display: isDense ? 'none' : 'block',
         }}>
           {config.uxHints.tagline || 'Multi-Tenant Travel Platform Demo'}
         </p>
       </header>
       <main style={{
-        ...styles.main,
+        flex: 1,
+        padding: '20px',
         maxWidth: isDense ? '1600px' : '1200px',
-        background: isDark ? '#1a1a1a' : 'transparent',
+        margin: '0 auto',
+        width: '100%',
       }}>
         {children}
       </main>
