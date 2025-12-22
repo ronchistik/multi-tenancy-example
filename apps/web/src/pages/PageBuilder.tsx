@@ -173,23 +173,51 @@ export function PageBuilder({ config, locations = [], onFlightSearch, onStaySear
 
   // Builder Mode
   return (
-    <div style={{ display: 'flex', gap: '20px', minHeight: '80vh' }}>
-      {/* Left Panel - Component Library */}
+    <div style={{ padding: '20px' }}>
+      {/* Demo Notice */}
       <div style={{
-        width: '250px',
-        background: tokens.colors.cardBackground,
-        padding: '20px',
-        borderRadius: tokens.borders.cardRadius,
-        boxShadow: tokens.shadows.card,
+        background: '#fef3c7',
+        border: '2px solid #f59e0b',
+        borderRadius: '12px',
+        padding: '16px 20px',
+        marginBottom: '24px',
+        textAlign: 'center',
       }}>
-        <h3 style={{
-          fontSize: tokens.typography.subheadingSize,
-          fontWeight: tokens.typography.subheadingWeight,
-          color: tokens.colors.textPrimary,
-          marginBottom: '16px',
+        <div style={{ fontSize: '16px', fontWeight: 700, color: '#92400e', marginBottom: '4px' }}>
+          📝 Page Builder - Demo Feature
+        </div>
+        <div style={{ fontSize: '14px', color: '#78350f', marginBottom: '8px' }}>
+          This demonstrates how the multi-tenant platform can support custom page layouts.
+          The builder shows design token integration but is not fully functional for production use.
+        </div>
+        <div style={{ 
+          fontSize: '13px', 
+          color: '#92400e', 
+          marginTop: '8px',
+          paddingTop: '8px',
+          borderTop: '1px solid #f59e0b55',
         }}>
-          Add Components
-        </h3>
+          <strong>Note:</strong> Tenant permissions and rules still apply - disabled verticals and policies remain enforced.
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: '20px', minHeight: '80vh' }}>
+        {/* Left Panel - Component Library */}
+        <div style={{
+          width: '250px',
+          background: tokens.colors.cardBackground,
+          padding: '20px',
+          borderRadius: tokens.borders.cardRadius,
+          boxShadow: tokens.shadows.card,
+        }}>
+          <h3 style={{
+            fontSize: tokens.typography.subheadingSize,
+            fontWeight: tokens.typography.subheadingWeight,
+            color: tokens.colors.textPrimary,
+            marginBottom: '16px',
+          }}>
+            Add Components
+          </h3>
         
         {(['hero', 'flightSearch', 'hotelSearch', 'flightResults', 'hotelResults', 'text', 'twoColumn', 'spacer'] as ComponentType[]).map((type) => {
           // Check if vertical is enabled
@@ -405,6 +433,7 @@ export function PageBuilder({ config, locations = [], onFlightSearch, onStaySear
           })()}
         </div>
       )}
+      </div>
     </div>
   );
 }
