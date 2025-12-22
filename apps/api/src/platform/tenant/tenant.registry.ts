@@ -45,10 +45,16 @@ const SAVER_TRIPS: Tenant = {
     brandName: 'SaverTrips',
     primaryColor: '#10B981', // Green
     layout: 'cards',
-    showPolicyCompliance: true, // Show budget airline exclusions
+    showPolicyCompliance: true,
     highlightPreferred: false,
-    priceEmphasis: 'high', // Price is the hero
+    priceEmphasis: 'high',
     showPromotions: false,
+    theme: 'light',
+    tagline: 'Budget-Friendly Student Travel',
+    buttonLabels: {
+      searchFlights: 'Find Cheapest Flights',
+      selectFlight: 'Book Now',
+    },
   },
   defaultUserRole: 'student',
 };
@@ -95,12 +101,19 @@ const APEX_RESERVE: Tenant = {
   ],
   uxHints: {
     brandName: 'Apex Reserve',
-    primaryColor: '#8B5CF6', // Purple/luxury
+    primaryColor: '#8B5CF6',
     layout: 'cards',
     showPolicyCompliance: false,
     highlightPreferred: true,
-    priceEmphasis: 'low', // Price is secondary to quality
-    showPromotions: true, // Show cashback promotions
+    priceEmphasis: 'low',
+    showPromotions: true,
+    theme: 'dark',
+    tagline: 'Curated Luxury Travel',
+    buttonLabels: {
+      searchFlights: 'Search Flights',
+      selectFlight: 'Reserve',
+      selectStay: 'Reserve',
+    },
   },
   defaultUserRole: 'executive',
 };
@@ -152,12 +165,19 @@ const GLOBEX_SYSTEMS: Tenant = {
   ],
   uxHints: {
     brandName: 'Globex Travel',
-    primaryColor: '#3B82F6', // Corporate blue
-    layout: 'table', // Dense table for efficiency
-    showPolicyCompliance: true, // Show warnings
-    highlightPreferred: true, // Highlight preferred airlines
+    primaryColor: '#3B82F6',
+    layout: 'table',
+    showPolicyCompliance: true,
+    highlightPreferred: true,
     priceEmphasis: 'medium',
     showPromotions: false,
+    theme: 'light',
+    tagline: 'Corporate Travel Management',
+    buttonLabels: {
+      searchFlights: 'Search',
+      selectFlight: 'Book',
+      selectStay: 'Book',
+    },
   },
   defaultUserRole: 'employee', // Most users are employees
 };

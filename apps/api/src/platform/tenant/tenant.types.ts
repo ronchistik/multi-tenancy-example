@@ -68,6 +68,14 @@ export interface UxHints {
   highlightPreferred: boolean;
   priceEmphasis: 'high' | 'medium' | 'low';
   showPromotions?: boolean;
+  theme: 'light' | 'dark';
+  tagline?: string;
+  buttonLabels?: {
+    searchFlights?: string;
+    searchStays?: string;
+    selectFlight?: string;
+    selectStay?: string;
+  };
 }
 
 /**

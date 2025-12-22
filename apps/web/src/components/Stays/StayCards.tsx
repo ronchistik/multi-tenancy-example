@@ -11,22 +11,23 @@ interface StayCardsProps {
 }
 
 export function StayCards({ stays, config }: StayCardsProps) {
-  const isLuxury = config.id === 'apex-reserve';
-  const isBudget = config.id === 'saver-trips';
+  const isDark = config.uxHints.theme === 'dark';
+  const isPriceHigh = config.uxHints.priceEmphasis === 'high';
+  const isPriceLow = config.uxHints.priceEmphasis === 'low';
 
   if (stays.length === 0) {
     return <p style={{
       ...styles.empty,
-      color: isLuxury ? '#888' : '#999',
+      color: isDark ? '#888' : '#999',
     }}>No hotels found</p>;
   }
 
   return (
     <div style={{
       ...styles.grid,
-      gridTemplateColumns: isLuxury ? 'repeat(auto-fill, minmax(420px, 1fr))' : 
+      gridTemplateColumns: isPriceLow ? 'repeat(auto-fill, minmax(420px, 1fr))' : 
                           'repeat(auto-fill, minmax(300px, 1fr))',
-      gap: isLuxury ? '32px' : '20px',
+      gap: isPriceLow ? '32px' : '20px',
     }}>
       {stays.map((stay) => {
         const rate = stay.rates[0];
@@ -35,9 +36,9 @@ export function StayCards({ stays, config }: StayCardsProps) {
         return (
           <div key={stay.id} style={{
             ...styles.card,
-            background: isLuxury ? 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%)' : 'white',
-            border: isLuxury ? '1px solid #3a3a3a' : 'none',
-            boxShadow: isLuxury ? '0 8px 32px rgba(0,0,0,0.6)' : '0 2px 8px rgba(0,0,0,0.1)',
+            background: isDark ? 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%)' : 'white',
+            border: isDark ? '1px solid #3a3a3a' : 'none',
+            boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.6)' : '0 2px 8px rgba(0,0,0,0.1)',
           }}>
             {/* Photo */}
             {stay.accommodation.photos && stay.accommodation.photos[0] && (
@@ -51,17 +52,17 @@ export function StayCards({ stays, config }: StayCardsProps) {
             {/* Name */}
             <div style={{
               ...styles.name,
-              color: isLuxury ? '#e5e5e5' : '#333',
-              fontSize: isLuxury ? '22px' : '18px',
-              fontWeight: isLuxury ? 300 : 600,
+              color: isDark ? '#e5e5e5' : '#333',
+              fontSize: isPriceLow ? '22px' : '18px',
+              fontWeight: isPriceLow ? 300 : 600,
             }}>{stay.accommodation.name}</div>
 
             {/* Rating */}
             {stay.accommodation.rating && (
               <div style={{
                 ...styles.rating,
-                color: isLuxury ? '#d4af37' : '#666',
-                fontSize: isLuxury ? '16px' : '14px',
+                color: isDark ? '#d4af37' : '#666',
+                fontSize: isPriceLow ? '16px' : '14px',
               }}>
                 {'⭐'.repeat(Math.floor(stay.accommodation.rating))} {stay.accommodation.rating.toFixed(1)}
               </div>
@@ -71,7 +72,7 @@ export function StayCards({ stays, config }: StayCardsProps) {
             {stay.accommodation.location?.city && (
               <div style={{
                 ...styles.location,
-                color: isLuxury ? '#888' : '#999',
+                color: isDark ? '#888' : '#999',
               }}>{stay.accommodation.location.city}</div>
             )}
 
@@ -79,18 +80,19 @@ export function StayCards({ stays, config }: StayCardsProps) {
             {rate && (
               <div style={{
                 ...styles.price,
-                fontSize: isBudget ? '36px' : isLuxury ? '32px' : '20px',
-                fontWeight: isBudget ? 800 : isLuxury ? 300 : 700,
-                color: isBudget ? config.uxHints.primaryColor : isLuxury ? '#ffffff' : '#333',
-                textAlign: isBudget ? 'center' : 'left',
+                fontSize: isPriceHigh ? '36px' : isPriceLow ? '32px' : '20px',
+                fontWeight: isPriceHigh ? 800 : isPriceLow ? 300 : 700,
+                color: isPriceHigh ? config.uxHints.primaryColor : isDark ? '#ffffff' : '#333',
+                textAlign: isPriceHigh ? 'center' : 'left',
               }}>
                 ${parseFloat(rate.price.amount).toFixed(0)}
                 <span style={{
                   ...styles.perNight,
-                  color: isLuxury ? '#999' : '#666',
-                  fontSize: isBudget ? '16px' : '14px',
-                  display: 'block',
-                  marginTop: isBudget ? '4px' : '0',
+                  color: isDark ? '#999' : '#666',
+                  fontSize: isPriceHigh ? '16px' : '14px',
+                  display: isPriceHigh ? 'block' : 'inline',
+                  marginTop: isPriceHigh ? '4px' : '0',
+                  marginLeft: isPriceHigh ? '0' : '4px',
                 }}>/night</span>
               </div>
             )}
