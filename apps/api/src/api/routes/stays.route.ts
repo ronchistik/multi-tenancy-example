@@ -62,9 +62,18 @@ export const staysRoute: FastifyPluginCallback = (fastify, opts, done) => {
                   id: { type: 'string' },
                   accommodation: {
                     type: 'object',
+                    additionalProperties: true,
                     properties: {
                       name: { type: 'string' },
                       rating: { type: 'integer' },
+                      location: {
+                        type: 'object',
+                        additionalProperties: true,
+                        properties: {
+                          address: { type: 'string' },
+                          city: { type: 'string' },
+                        }
+                      },
                       photos: { type: 'array', items: { type: 'string' } },
                     }
                   },
@@ -72,6 +81,7 @@ export const staysRoute: FastifyPluginCallback = (fastify, opts, done) => {
                     type: 'array',
                     items: {
                       type: 'object',
+                      additionalProperties: true,
                       properties: {
                         id: { type: 'string' },
                         price: {
@@ -80,15 +90,28 @@ export const staysRoute: FastifyPluginCallback = (fastify, opts, done) => {
                             amount: { type: 'string' },
                             currency: { type: 'string' },
                           }
-                        }
+                        },
+                        roomName: { type: 'string' },
                       }
                     }
                   },
                   policy: {
                     type: 'object',
+                    additionalProperties: true,
                     properties: {
                       compliant: { type: 'boolean' },
-                      violations: { type: 'array', items: { type: 'object' } },
+                      violations: { 
+                        type: 'array', 
+                        items: { 
+                          type: 'object',
+                          additionalProperties: true,
+                          properties: {
+                            type: { type: 'string' },
+                            message: { type: 'string' },
+                            severity: { type: 'string' },
+                          }
+                        } 
+                      },
                     }
                   },
                 }

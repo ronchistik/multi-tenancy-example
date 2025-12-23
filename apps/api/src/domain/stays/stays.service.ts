@@ -96,16 +96,27 @@ export class StaysService {
       roomName: 'Standard Room',
     };
     
+    // Extract city from various possible locations in the response
+    const cityName = location.address?.city_name 
+      || location.city_name 
+      || location.city 
+      || accommodation.city
+      || null;
+    
+    const addressLine = location.address?.line_one 
+      || location.address 
+      || null;
+    
     const stayOffer: any = {
       id: duffelStay.id,
       accommodation: {
         id: accommodation.id || duffelStay.id,
         name: accommodation.name || 'Unknown',
         rating: accommodation.rating,
-        location: {
-          address: location.address?.line_one,
-          city: location.address?.city_name,
-        },
+        location: cityName || addressLine ? {
+          address: addressLine,
+          city: cityName,
+        } : undefined,
         photos: (accommodation.photos || []).map((p: any) => p.url),
       },
       rates: [rate],

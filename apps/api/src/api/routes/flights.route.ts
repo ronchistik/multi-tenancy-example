@@ -78,11 +78,34 @@ export const flightsRoute: FastifyPluginCallback = (fastify, opts, done) => {
                   },
                   policy: {
                     type: 'object',
+                    additionalProperties: true,
                     properties: {
                       compliant: { type: 'boolean' },
                       preferred: { type: 'boolean' },
-                      violations: { type: 'array', items: { type: 'object' } },
-                      promotions: { type: 'array', items: { type: 'object' } },
+                      violations: { 
+                        type: 'array', 
+                        items: { 
+                          type: 'object',
+                          additionalProperties: true,
+                          properties: {
+                            type: { type: 'string' },
+                            message: { type: 'string' },
+                            severity: { type: 'string' },
+                          }
+                        } 
+                      },
+                      promotions: { 
+                        type: 'array', 
+                        items: { 
+                          type: 'object',
+                          additionalProperties: true,
+                          properties: {
+                            type: { type: 'string' },
+                            message: { type: 'string' },
+                            value: { type: 'number' },
+                          }
+                        } 
+                      },
                     }
                   },
                 }
