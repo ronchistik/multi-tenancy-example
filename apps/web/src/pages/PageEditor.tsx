@@ -75,19 +75,20 @@ SpacerWithProps.craft = { ...Spacer.craft };
 interface PageEditorProps {
   pageConfig: PageConfig;
   config: TenantConfig;
+  initialThemeOverrides?: ThemeOverrides; // Tenant-level theme overrides
   onSave: (serializedState: string, themeOverrides?: ThemeOverrides) => void;
   onClose: () => void;
 }
 
-export function PageEditor({ pageConfig, config: baseConfig, onSave, onClose }: PageEditorProps) {
+export function PageEditor({ pageConfig, config: baseConfig, initialThemeOverrides, onSave, onClose }: PageEditorProps) {
   // State for flight results (for preview)
   const [flightOffers, setFlightOffers] = useState<FlightOffer[]>([]);
   const [flightLoading, setFlightLoading] = useState(false);
   const [flightError, setFlightError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   
-  // State for theme overrides
-  const [themeOverrides, setThemeOverrides] = useState<ThemeOverrides | undefined>(pageConfig.themeOverrides);
+  // State for theme overrides (use tenant-level theme, not page-level)
+  const [themeOverrides, setThemeOverrides] = useState<ThemeOverrides | undefined>(initialThemeOverrides);
   const [showThemeEditor, setShowThemeEditor] = useState(false);
   
   // Apply theme overrides to get active config

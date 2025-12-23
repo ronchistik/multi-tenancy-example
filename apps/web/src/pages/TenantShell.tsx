@@ -9,7 +9,7 @@ import { FlightsPage } from './FlightsPage';
 import { StaysPage } from './StaysPage';
 import { PageRenderer } from './PageRenderer';
 import { applyTenantTheme } from '../tenantUx';
-import { loadPageConfig } from '../utils/pageStorage';
+import { loadPageConfig, loadTenantTheme } from '../utils/pageStorage';
 import { applyThemeOverrides } from '../utils/themeUtils';
 
 interface TenantShellProps {
@@ -32,16 +32,18 @@ export function TenantShell({ tenantId }: TenantShellProps) {
   // Load saved page config - must be called unconditionally (before any returns)
   const savedFlightsConfig = loadPageConfig(tenantId, 'flights-page');
   
-  // Apply theme overrides from the active page to the layout config
+  // Load tenant-level theme overrides (applies to ALL pages for this tenant)
+  const tenantTheme = loadTenantTheme(tenantId);
+  
+  // Apply tenant-level theme overrides to config
   // Must be called unconditionally (React hooks rule)
   const effectiveConfig = useMemo(() => {
     if (!config) return null;
-    const flightsPageConfig = savedFlightsConfig || config.pages?.flights;
-    if (activeTab === 'flights' && flightsPageConfig?.themeOverrides) {
-      return applyThemeOverrides(config, flightsPageConfig.themeOverrides);
+    if (tenantTheme) {
+      return applyThemeOverrides(config, tenantTheme);
     }
     return config;
-  }, [config, activeTab, savedFlightsConfig]);
+  }, [config, tenantTheme]);
 
   const loadConfig = async () => {
     setLoading(true);
@@ -118,12 +120,12 @@ export function TenantShell({ tenantId }: TenantShellProps) {
         flightsPageConfig ? (
           <PageRenderer
             pageConfig={flightsPageConfig}
-            config={config}
+            config={effectiveConfig}
             onFlightSearch={(req) => apiClient.searchFlights(req)}
           />
         ) : (
           <FlightsPage
-            config={config}
+            config={effectiveConfig}
             onSearch={(req) => apiClient.searchFlights(req)}
           />
         )
@@ -131,7 +133,7 @@ export function TenantShell({ tenantId }: TenantShellProps) {
 
       {activeTab === 'stays' && staysEnabled && (
         <StaysPage
-          config={config}
+          config={effectiveConfig}
           locations={locations}
           onSearch={(req) => apiClient.searchStays(req)}
         />

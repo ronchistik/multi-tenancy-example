@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { clearAllPageConfigs } from '../utils/pageStorage';
+import { clearAllPageConfigs, clearAllTenantThemes } from '../utils/pageStorage';
 
 const TENANTS = [
   { id: 'saver-trips', name: 'SaverTrips (Student Budget App)' },
@@ -20,8 +20,9 @@ interface TenantPickerProps {
 
 export function TenantPicker({ currentTenant, tenantName, onTenantChange, onNavigateToBuilder }: TenantPickerProps) {
   const handleReset = () => {
-    if (confirm('Reset all page customizations for ALL tenants?\n\nThis will restore all pages to their default state.')) {
+    if (confirm('Reset all page and theme customizations for ALL tenants?\n\nThis will restore everything to default.')) {
       clearAllPageConfigs();
+      clearAllTenantThemes();
       alert('✅ All customizations cleared! Refreshing page...');
       window.location.reload();
     }

@@ -6,6 +6,7 @@
 import type { PageConfig, ThemeOverrides } from '../api';
 
 const STORAGE_KEY = 'odynn-page-configs';
+const THEME_STORAGE_KEY = 'odynn-tenant-themes';
 
 interface StoredPageConfigs {
   [tenantId: string]: {
@@ -92,5 +93,43 @@ export function clearAllPageConfigs(): void {
 export function hasPageConfig(tenantId: string, pageId: string): boolean {
   const configs = getAllConfigs();
   return !!configs[tenantId]?.[pageId];
+}
+
+/**
+ * Save tenant-level theme overrides (applies to ALL pages for this tenant)
+ */
+export function saveTenantTheme(tenantId: string, themeOverrides: ThemeOverrides): void {
+  const themes = getAllTenantThemes();
+  themes[tenantId] = themeOverrides;
+  localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(themes));
+}
+
+/**
+ * Load tenant-level theme overrides
+ */
+export function loadTenantTheme(tenantId: string): ThemeOverrides | null {
+  const themes = getAllTenantThemes();
+  return themes[tenantId] || null;
+}
+
+/**
+ * Get all tenant themes
+ */
+function getAllTenantThemes(): Record<string, ThemeOverrides> {
+  const stored = localStorage.getItem(THEME_STORAGE_KEY);
+  if (!stored) return {};
+  
+  try {
+    return JSON.parse(stored);
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Clear all tenant themes
+ */
+export function clearAllTenantThemes(): void {
+  localStorage.removeItem(THEME_STORAGE_KEY);
 }
 

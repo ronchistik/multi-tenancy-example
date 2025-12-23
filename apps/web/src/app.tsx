@@ -8,7 +8,7 @@ import { TenantShell } from './pages/TenantShell';
 import { PageBuilder } from './pages/PageBuilder';
 import { PageEditor } from './pages/PageEditor';
 import { createApiClient } from './api';
-import { savePageConfig, loadPageConfig } from './utils/pageStorage';
+import { savePageConfig, loadPageConfig, saveTenantTheme, loadTenantTheme } from './utils/pageStorage';
 
 export function App() {
   const [tenantId, setTenantId] = useState<string>('saver-trips');
@@ -42,15 +42,23 @@ export function App() {
       // Try to load saved config from localStorage first
       const savedConfig = loadPageConfig(tenantId, 'flights-page');
       const pageConfig = savedConfig || config.tenant.pages.flights;
+      // Load existing tenant theme
+      const existingTheme = loadTenantTheme(tenantId);
       
       return (
         <PageEditor
           pageConfig={pageConfig}
           config={config.tenant}
+          initialThemeOverrides={existingTheme || undefined}
           onSave={(serializedState, themeOverrides) => {
-            savePageConfig(tenantId, 'flights-page', serializedState, themeOverrides);
-            console.log('✅ Page saved to localStorage!', { serializedState, themeOverrides });
-            alert('✅ Page saved successfully!\n\n(Currently saved to browser localStorage. In production, this would save to the backend API.)');
+            // Save page layout (without theme - theme is saved separately at tenant level)
+            savePageConfig(tenantId, 'flights-page', serializedState);
+            // Save theme at tenant level (applies to ALL pages for this tenant)
+            if (themeOverrides && Object.keys(themeOverrides).length > 0) {
+              saveTenantTheme(tenantId, themeOverrides);
+            }
+            console.log('✅ Saved!', { serializedState, themeOverrides });
+            alert('✅ Page saved successfully!\n\nTheme changes apply to all pages for this tenant.');
           }}
           onClose={() => {
             setShowBuilder(false);
