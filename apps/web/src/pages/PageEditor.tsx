@@ -3,7 +3,7 @@
  * Visual page editor using Craft.js
  */
 
-import React, { useState, useMemo, createContext, useContext } from 'react';
+import React, { useState, useMemo, useRef, createContext, useContext } from 'react';
 import { Editor, Frame, Element, useEditor } from '@craftjs/core';
 import type { TenantConfig, FlightSearchRequest, FlightOffer, PageConfig, ThemeOverrides } from '../api';
 import { applyThemeOverrides, extractThemeOverrides } from '../utils/themeUtils';
@@ -19,6 +19,7 @@ import { Text } from '../components/Page/Text';
 import { Button } from '../components/Page/Button';
 import { Divider } from '../components/Page/Divider';
 import { Spacer } from '../components/Page/Spacer';
+import { FeatureCardsEditable } from '../components/Page/FeatureCardsEditable';
 
 // Runtime props context
 const RuntimePropsContext = createContext<any>(null);
@@ -71,6 +72,12 @@ function SpacerWithProps(props: any) {
   return <Spacer {...props} />;
 }
 SpacerWithProps.craft = { ...Spacer.craft };
+
+function FeatureCardsWithProps(props: any) {
+  const runtime = useContext(RuntimePropsContext);
+  return <FeatureCardsEditable {...props} config={runtime?.config} />;
+}
+FeatureCardsWithProps.craft = { ...FeatureCardsEditable.craft };
 
 interface PageEditorProps {
   pageConfig: PageConfig;
@@ -125,6 +132,7 @@ export function PageEditor({ pageConfig, config: baseConfig, initialThemeOverrid
     Button: ButtonWithProps,
     Divider: DividerWithProps,
     Spacer: SpacerWithProps,
+    FeatureCards: FeatureCardsWithProps,
   };
 
   // Runtime props for context
@@ -137,8 +145,52 @@ export function PageEditor({ pageConfig, config: baseConfig, initialThemeOverrid
     hasSearched,
   };
 
-  // Parse the serialized state
-  const serializedState = JSON.parse(pageConfig.serializedState);
+  // Parse the serialized state and inject FeatureCards if tenant has them (only on initial load)
+  const initialSerializedState = useRef<any>(null);
+  
+  const serializedState = useMemo(() => {
+    // Only compute once on initial load
+    if (initialSerializedState.current !== null) {
+      return initialSerializedState.current;
+    }
+    
+    const state = JSON.parse(pageConfig.serializedState);
+    
+    // Check if tenant has featureCards and page doesn't have FeatureCards component
+    const hasFeatureCardsInTenant = baseConfig.uxHints.featureCards && baseConfig.uxHints.featureCards.length > 0;
+    const hasFeatureCardsInPage = Object.values(state).some(
+      (node: any) => node.type?.resolvedName === 'FeatureCards'
+    );
+    
+    // Inject FeatureCards at the beginning if tenant has them but page doesn't
+    if (hasFeatureCardsInTenant && !hasFeatureCardsInPage) {
+      const featureCardsId = 'injected-feature-cards';
+      
+      // Add FeatureCards node
+      state[featureCardsId] = {
+        type: { resolvedName: 'FeatureCards' },
+        isCanvas: false,
+        props: {
+          cards: baseConfig.uxHints.featureCards,
+        },
+        displayName: 'Feature Cards',
+        custom: {},
+        parent: 'ROOT',
+        hidden: false,
+        nodes: [],
+        linkedNodes: {},
+      };
+      
+      // Add to ROOT's nodes at the beginning
+      if (state.ROOT && Array.isArray(state.ROOT.nodes)) {
+        state.ROOT.nodes = [featureCardsId, ...state.ROOT.nodes];
+      }
+    }
+    
+    initialSerializedState.current = state;
+    return state;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageConfig.serializedState]); // Only depend on pageConfig, not config (which changes during editing)
 
   return (
     <RuntimePropsContext.Provider value={runtimeProps}>
@@ -245,34 +297,81 @@ export function PageEditor({ pageConfig, config: baseConfig, initialThemeOverrid
                 {/* Header Preview */}
                 <header style={{ 
                   color: 'white',
-                  padding: config.uxHints.layout === 'table' ? '12px 20px' : '28px 20px',
                   textAlign: 'center',
-                  background: config.uxHints.primaryColor,
-                  boxShadow: config.uxHints.layout === 'table' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  ...(config.uxHints.backgroundImage ? {
+                    minHeight: '200px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  } : {
+                    padding: config.uxHints.layout === 'table' ? '12px 20px' : '28px 20px',
+                    background: config.uxHints.primaryColor,
+                    boxShadow: config.uxHints.layout === 'table' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                  }),
                 }}>
-                  <h1 style={{
-                    fontSize: config.uxHints.designTokens.typography.headingSize,
-                    fontWeight: config.uxHints.designTokens.typography.headingWeight,
-                    fontFamily: config.uxHints.designTokens.typography.fontFamily,
-                    marginBottom: '4px',
-                    letterSpacing: config.uxHints.priceEmphasis === 'low' ? '2px' : 'normal',
-                    textTransform: config.uxHints.priceEmphasis === 'low' ? 'uppercase' : 'none',
-                  }}>
-                    {config.uxHints.brandName}
-                  </h1>
-                  {config.uxHints.layout !== 'table' && (
-                    <p style={{
-                      fontSize: config.uxHints.designTokens.typography.bodySize,
-                      fontFamily: config.uxHints.designTokens.typography.fontFamily,
-                      opacity: 0.9,
-                      margin: 0,
-                    }}>
-                      {config.uxHints.tagline || 'Multi-Tenant Travel Platform Demo'}
-                    </p>
+                  {/* Background image */}
+                  {config.uxHints.backgroundImage && (
+                    <>
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundImage: `url(${config.uxHints.backgroundImage})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        filter: 'brightness(0.6)',
+                      }} />
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: `linear-gradient(180deg, 
+                          rgba(0,0,0,0.3) 0%, 
+                          rgba(0,0,0,0.5) 50%, 
+                          ${config.uxHints.primaryColor}90 100%)`,
+                      }} />
+                    </>
                   )}
+                  
+                  <div style={{ 
+                    position: 'relative', 
+                    zIndex: 1, 
+                    padding: config.uxHints.backgroundImage ? '30px 20px' : '0',
+                  }}>
+                    <h1 style={{
+                      fontSize: config.uxHints.backgroundImage ? '32px' : config.uxHints.designTokens.typography.headingSize,
+                      fontWeight: config.uxHints.designTokens.typography.headingWeight,
+                      fontFamily: config.uxHints.designTokens.typography.fontFamily,
+                      marginBottom: config.uxHints.backgroundImage ? '8px' : '4px',
+                      letterSpacing: config.uxHints.priceEmphasis === 'low' ? '3px' : '1px',
+                      textTransform: config.uxHints.priceEmphasis === 'low' ? 'uppercase' : 'none',
+                      textShadow: config.uxHints.backgroundImage ? '0 2px 20px rgba(0,0,0,0.5)' : 'none',
+                    }}>
+                      {config.uxHints.brandName}
+                    </h1>
+                    {(config.uxHints.layout !== 'table' || config.uxHints.backgroundImage) && (
+                      <p style={{
+                        fontSize: config.uxHints.backgroundImage ? '16px' : config.uxHints.designTokens.typography.bodySize,
+                        fontFamily: config.uxHints.designTokens.typography.fontFamily,
+                        opacity: 0.9,
+                        margin: 0,
+                        textShadow: config.uxHints.backgroundImage ? '0 1px 10px rgba(0,0,0,0.5)' : 'none',
+                        fontWeight: 300,
+                      }}>
+                        {config.uxHints.tagline || 'Multi-Tenant Travel Platform Demo'}
+                      </p>
+                    )}
+                  </div>
                 </header>
                 
-                {/* Page Content */}
+                {/* Page Content - FeatureCards are editable inside the canvas */}
                 <main style={{
                   padding: '20px',
                   maxWidth: config.uxHints.layout === 'table' ? '1600px' : '1200px',
@@ -310,6 +409,7 @@ function Toolbox({ config }: { config: TenantConfig }) {
     { name: 'Page Title', component: PageTitleWithProps, enabled: true },
     { name: 'Flight Search', component: FlightSearchFormWithProps, enabled: config.enabledVerticals.includes('flights') },
     { name: 'Flight Results', component: FlightResultsWithProps, enabled: config.enabledVerticals.includes('flights') },
+    { name: 'Feature Cards', component: FeatureCardsWithProps, enabled: true },
     { name: 'Container', component: ContainerWithProps, enabled: true },
   ].filter(c => c.enabled);
 

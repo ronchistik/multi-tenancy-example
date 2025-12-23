@@ -89,6 +89,12 @@ export interface TenantConfig {
     showPromotions?: boolean;
     theme: 'light' | 'dark';
     tagline?: string;
+    backgroundImage?: string;
+    featureCards?: Array<{
+      title: string;
+      description: string;
+      imageUrl: string;
+    }>;
     buttonLabels?: {
       searchFlights?: string;
       searchStays?: string;

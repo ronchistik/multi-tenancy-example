@@ -122,6 +122,12 @@ export interface UxHints {
   showPromotions?: boolean;
   theme: 'light' | 'dark';
   tagline?: string;
+  backgroundImage?: string; // Optional hero/background image URL
+  featureCards?: Array<{  // Trivago-style feature cards with cartoon assets
+    title: string;
+    description: string;
+    imageUrl: string;
+  }>;
   buttonLabels?: {
     searchFlights?: string;
     searchStays?: string;

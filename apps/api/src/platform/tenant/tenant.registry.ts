@@ -5,7 +5,7 @@
 
 import { env } from '../../shared/env.js';
 import type { Tenant, TenantId } from './tenant.types.js';
-import { createDefaultFlightsPage, createDefaultStaysPage } from '../pages/defaultPages.js';
+import { createDefaultFlightsPage, createDefaultStaysPage, createFlightsPageWithFeatureCards } from '../pages/defaultPages.js';
 
 /**
  * Tenant 1: SaverTrips
@@ -44,25 +44,42 @@ const SAVER_TRIPS: Tenant = {
   ],
   uxHints: {
     brandName: 'SaverTrips',
-    primaryColor: '#10B981',
+    primaryColor: '#007fad', // Trivago-style teal blue
     layout: 'cards',
     showPolicyCompliance: true,
     highlightPreferred: false,
     priceEmphasis: 'high',
     showPromotions: false,
     theme: 'light',
-    tagline: 'Budget-Friendly Student Travel',
+    tagline: 'Save up to 40% on your next flight ✈️',
+    featureCards: [
+      {
+        title: 'Search simply',
+        description: 'Easily search through hundreds of flights in seconds.',
+        imageUrl: 'https://imgcy.trivago.com/hardcodedimages/homepage-landing/usp/SearchDesktop.svg',
+      },
+      {
+        title: 'Compare confidently',
+        description: 'Compare flight prices from 100s of sites at once.',
+        imageUrl: 'https://imgcy.trivago.com/hardcodedimages/homepage-landing/usp/CompareDesktop.svg',
+      },
+      {
+        title: 'Save big',
+        description: 'Discover great deals to book on our partner sites.',
+        imageUrl: 'https://imgcy.trivago.com/hardcodedimages/homepage-landing/usp/SaveDesktop.svg',
+      },
+    ],
     buttonLabels: {
-      searchFlights: 'Find Cheapest Flights',
+      searchFlights: 'Search',
       selectFlight: 'Book Now',
     },
     designTokens: {
       colors: {
-        background: '#ffffff',
+        background: '#f8f9fa',
         cardBackground: '#ffffff',
-        textPrimary: '#1f2937',
+        textPrimary: '#1a1a1a',
         textSecondary: '#6b7280',
-        border: '#e5e7eb',
+        border: '#e8e8e8',
         inputBackground: '#ffffff',
         inputBorder: '#d1d5db',
         error: '#dc2626',
@@ -70,44 +87,44 @@ const SAVER_TRIPS: Tenant = {
         success: '#10b981',
       },
       typography: {
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        headingSize: '26px',
+        fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, sans-serif',
+        headingSize: '28px',
         headingWeight: 700,
-        subheadingSize: '22px',
+        subheadingSize: '20px',
         subheadingWeight: 600,
-        bodySize: '16px',
+        bodySize: '15px',
         bodyWeight: 400,
-        labelSize: '15px',
-        labelWeight: 600,
-        priceSize: '48px',
-        priceWeight: 800,
-        buttonSize: '18px',
-        buttonWeight: 700,
+        labelSize: '14px',
+        labelWeight: 500,
+        priceSize: '32px',
+        priceWeight: 700,
+        buttonSize: '16px',
+        buttonWeight: 600,
       },
       spacing: {
-        cardPadding: '28px',
-        cardGap: '24px',
+        cardPadding: '24px',
+        cardGap: '20px',
         formPadding: '24px',
-        formGap: '20px',
-        inputPadding: '12px',
-        buttonPadding: '16px 32px',
+        formGap: '16px',
+        inputPadding: '14px 16px',
+        buttonPadding: '14px 32px',
       },
       borders: {
-        cardRadius: '20px',
+        cardRadius: '12px',
         inputRadius: '8px',
-        buttonRadius: '10px',
-        cardBorderWidth: '2px',
+        buttonRadius: '8px',
+        cardBorderWidth: '1px',
       },
       shadows: {
-        card: '0 2px 8px rgba(16, 185, 129, 0.1)',
-        cardHover: '0 4px 12px rgba(16, 185, 129, 0.2)',
-        form: '0 4px 12px rgba(16, 185, 129, 0.15)',
+        card: '0 2px 8px rgba(0,0,0,0.08)',
+        cardHover: '0 4px 16px rgba(0,0,0,0.12)',
+        form: '0 2px 12px rgba(0,0,0,0.1)',
       },
     },
   },
   defaultUserRole: 'student',
   pages: {
-    flights: createDefaultFlightsPage(),
+    flights: createFlightsPageWithFeatureCards(),
   },
 };
 
@@ -161,6 +178,7 @@ const APEX_RESERVE: Tenant = {
     showPromotions: true,
     theme: 'dark',
     tagline: 'Curated Luxury Travel',
+    backgroundImage: 'https://cf.luxurylink.com/homepage/random/202006/random-img-homepage_1920_7.jpg',
     buttonLabels: {
       searchFlights: 'Search Flights',
       selectFlight: 'Reserve',

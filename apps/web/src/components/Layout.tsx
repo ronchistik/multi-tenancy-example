@@ -4,15 +4,18 @@
 
 import React from 'react';
 import type { TenantConfig } from '../api';
+import { FeatureCards } from './FeatureCards';
 
 interface LayoutProps {
   config: TenantConfig;
   children: React.ReactNode;
+  hideFeatureCards?: boolean; // Hide when PageRenderer handles them
 }
 
-export function Layout({ config, children }: LayoutProps) {
+export function Layout({ config, children, hideFeatureCards = false }: LayoutProps) {
   const tokens = config.uxHints.designTokens;
   const isDense = config.uxHints.layout === 'table';
+  const hasHeroImage = !!config.uxHints.backgroundImage;
   
   return (
     <div style={{
@@ -23,30 +26,88 @@ export function Layout({ config, children }: LayoutProps) {
       fontFamily: tokens.typography.fontFamily,
       color: tokens.colors.textPrimary,
     }}>
+      {/* Hero header with optional background image */}
       <header style={{ 
         color: 'white',
-        padding: isDense ? '12px 20px' : '28px 20px',
         textAlign: 'center',
-        background: config.uxHints.primaryColor,
-        boxShadow: isDense ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+        position: 'relative',
+        overflow: 'hidden',
+        ...(hasHeroImage ? {
+          minHeight: '280px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+        } : {
+          padding: isDense ? '12px 20px' : '28px 20px',
+          background: config.uxHints.primaryColor,
+          boxShadow: isDense ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+        }),
       }}>
-        <h1 style={{
-          fontSize: tokens.typography.headingSize,
-          fontWeight: tokens.typography.headingWeight,
-          marginBottom: '4px',
-          letterSpacing: config.uxHints.priceEmphasis === 'low' ? '2px' : 'normal',
-          textTransform: config.uxHints.priceEmphasis === 'low' ? 'uppercase' : 'none',
+        {/* Background image */}
+        {hasHeroImage && (
+          <>
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundImage: `url(${config.uxHints.backgroundImage})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'brightness(0.6)',
+            }} />
+            {/* Gradient overlay */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: `linear-gradient(180deg, 
+                rgba(0,0,0,0.3) 0%, 
+                rgba(0,0,0,0.5) 50%, 
+                ${config.uxHints.primaryColor}90 100%)`,
+            }} />
+          </>
+        )}
+        
+        {/* Header content */}
+        <div style={{ 
+          position: 'relative', 
+          zIndex: 1, 
+          padding: hasHeroImage ? '40px 20px' : '0',
         }}>
-          {config.uxHints.brandName}
-        </h1>
-        <p style={{
-          fontSize: tokens.typography.bodySize,
-          opacity: 0.9,
-          display: isDense ? 'none' : 'block',
-        }}>
-          {config.uxHints.tagline || 'Multi-Tenant Travel Platform Demo'}
-        </p>
+          <h1 style={{
+            fontSize: hasHeroImage ? '42px' : tokens.typography.headingSize,
+            fontWeight: tokens.typography.headingWeight,
+            marginBottom: hasHeroImage ? '12px' : '4px',
+            letterSpacing: config.uxHints.priceEmphasis === 'low' ? '4px' : '1px',
+            textTransform: config.uxHints.priceEmphasis === 'low' ? 'uppercase' : 'none',
+            textShadow: hasHeroImage ? '0 2px 20px rgba(0,0,0,0.5)' : 'none',
+          }}>
+            {config.uxHints.brandName}
+          </h1>
+          <p style={{
+            fontSize: hasHeroImage ? '18px' : tokens.typography.bodySize,
+            opacity: 0.9,
+            display: isDense && !hasHeroImage ? 'none' : 'block',
+            textShadow: hasHeroImage ? '0 1px 10px rgba(0,0,0,0.5)' : 'none',
+            maxWidth: '600px',
+            margin: '0 auto',
+            fontWeight: 300,
+          }}>
+            {config.uxHints.tagline || 'Multi-Tenant Travel Platform Demo'}
+          </p>
+        </div>
       </header>
+
+      {/* Trivago-style feature cards (hidden when PageRenderer handles them) */}
+      {!hideFeatureCards && config.uxHints.featureCards && config.uxHints.featureCards.length > 0 && (
+        <FeatureCards config={config} />
+      )}
+      
       <main style={{
         flex: 1,
         padding: '20px',

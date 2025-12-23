@@ -80,8 +80,11 @@ export function TenantShell({ tenantId }: TenantShellProps) {
   const staysEnabled = config.enabledVerticals.includes('stays');
   const flightsPageConfig = savedFlightsConfig || config.pages?.flights;
 
+  // Hide FeatureCards in Layout when PageRenderer will render them
+  const usePageRenderer = activeTab === 'flights' && flightsEnabled && flightsPageConfig;
+  
   return (
-    <Layout config={effectiveConfig}>
+    <Layout config={effectiveConfig} hideFeatureCards={!!usePageRenderer}>
       {/* Vertical tabs */}
       {flightsEnabled && staysEnabled && (
         <div style={styles.tabs}>

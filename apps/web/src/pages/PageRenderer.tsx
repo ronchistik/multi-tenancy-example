@@ -17,6 +17,7 @@ import { Text } from '../components/Page/Text';
 import { Button } from '../components/Page/Button';
 import { Divider } from '../components/Page/Divider';
 import { Spacer } from '../components/Page/Spacer';
+import { FeatureCardsEditable } from '../components/Page/FeatureCardsEditable';
 
 // Runtime props context
 const RuntimePropsContext = createContext<any>(null);
@@ -70,6 +71,12 @@ function SpacerWithProps(props: any) {
 }
 SpacerWithProps.craft = { ...Spacer.craft };
 
+function FeatureCardsWithProps(props: any) {
+  const runtime = useContext(RuntimePropsContext);
+  return <FeatureCardsEditable {...props} config={runtime?.config} />;
+}
+FeatureCardsWithProps.craft = { ...FeatureCardsEditable.craft };
+
 interface PageRendererProps {
   pageConfig: PageConfig;
   config: TenantConfig;
@@ -116,6 +123,7 @@ export function PageRenderer({ pageConfig, config: baseConfig, onFlightSearch }:
     Button: ButtonWithProps,
     Divider: DividerWithProps,
     Spacer: SpacerWithProps,
+    FeatureCards: FeatureCardsWithProps,
   };
 
   // Runtime props for context
