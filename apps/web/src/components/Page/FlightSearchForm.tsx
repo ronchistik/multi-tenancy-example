@@ -439,7 +439,25 @@ function FlightSearchFormSettings() {
         <input
           type="date"
           value={props.defaultDepartureDate || actualDepartureDate}
-          onChange={(e) => setProp((props: FlightSearchFormProps) => (props.defaultDepartureDate = e.target.value))}
+          min={getMinDate()}
+          max={props.defaultReturnDate || actualReturnDate}
+          onChange={(e) => {
+            const newDate = e.target.value;
+            const retDate = props.defaultReturnDate || actualReturnDate;
+            // Validate: must be in the future
+            if (newDate && new Date(newDate) < new Date(getMinDate())) {
+              alert('Departure date must be at least 1 day in the future');
+              return;
+            }
+            // Validate: can't be after return date
+            if (newDate && new Date(newDate) >= new Date(retDate)) {
+              alert('Departure date must be before return date');
+              return;
+            }
+            setProp((props: FlightSearchFormProps) => {
+              props.defaultDepartureDate = newDate;
+            });
+          }}
           style={{
             width: '100%',
             padding: '8px',
@@ -462,7 +480,17 @@ function FlightSearchFormSettings() {
         <input
           type="date"
           value={props.defaultReturnDate || actualReturnDate}
-          onChange={(e) => setProp((props: FlightSearchFormProps) => (props.defaultReturnDate = e.target.value))}
+          min={props.defaultDepartureDate || actualDepartureDate}
+          onChange={(e) => {
+            const newDate = e.target.value;
+            const depDate = props.defaultDepartureDate || actualDepartureDate;
+            // Validate: must be after departure date
+            if (newDate && new Date(newDate) <= new Date(depDate)) {
+              alert('Return date must be after departure date');
+              return;
+            }
+            setProp((props: FlightSearchFormProps) => (props.defaultReturnDate = newDate));
+          }}
           style={{
             width: '100%',
             padding: '8px',
@@ -557,5 +585,12 @@ function getDefaultDate(daysFromNow: number): string {
 
 function getTodayDate(): string {
   return new Date().toISOString().split('T')[0]!;
+}
+
+function getMinDate(): string {
+  // Minimum date is tomorrow (to ensure flight searches work)
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  return date.toISOString().split('T')[0]!;
 }
 
