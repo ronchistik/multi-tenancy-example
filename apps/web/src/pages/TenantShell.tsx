@@ -7,7 +7,9 @@ import { createApiClient, type TenantConfig, type Location } from '../api';
 import { Layout } from '../components/Layout';
 import { FlightsPage } from './FlightsPage';
 import { StaysPage } from './StaysPage';
+import { PageRenderer } from './PageRenderer';
 import { applyTenantTheme } from '../tenantUx';
+import { loadPageConfig } from '../utils/pageStorage';
 
 interface TenantShellProps {
   tenantId: string;
@@ -96,12 +98,24 @@ export function TenantShell({ tenantId }: TenantShellProps) {
       )}
 
       {/* Content */}
-      {activeTab === 'flights' && flightsEnabled && (
-        <FlightsPage
-          config={config}
-          onSearch={(req) => apiClient.searchFlights(req)}
-        />
-      )}
+      {activeTab === 'flights' && flightsEnabled && (() => {
+        // Try to load saved config from localStorage
+        const savedConfig = loadPageConfig(tenantId, 'flights-page');
+        const pageConfig = savedConfig || config.pages?.flights;
+        
+        return pageConfig ? (
+          <PageRenderer
+            pageConfig={pageConfig}
+            config={config}
+            onFlightSearch={(req) => apiClient.searchFlights(req)}
+          />
+        ) : (
+          <FlightsPage
+            config={config}
+            onSearch={(req) => apiClient.searchFlights(req)}
+          />
+        );
+      })()}
 
       {activeTab === 'stays' && staysEnabled && (
         <StaysPage

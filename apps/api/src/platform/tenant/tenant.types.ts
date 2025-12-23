@@ -137,6 +137,69 @@ export interface UxHints {
 export type UserRole = 'employee' | 'executive' | 'student';
 
 /**
+ * Theme overrides for page-level customization
+ */
+export interface ThemeOverrides {
+  primaryColor?: string;
+  colors?: Partial<{
+    background: string;
+    cardBackground: string;
+    textPrimary: string;
+    textSecondary: string;
+    border: string;
+    inputBackground: string;
+    inputBorder: string;
+    error: string;
+    errorBackground: string;
+    success: string;
+  }>;
+  typography?: Partial<{
+    fontFamily: string;
+    headingSize: string;
+    headingWeight: number;
+    subheadingSize: string;
+    subheadingWeight: number;
+    bodySize: string;
+    bodyWeight: number;
+    labelSize: string;
+    labelWeight: number;
+    priceSize: string;
+    priceWeight: number;
+    buttonSize: string;
+    buttonWeight: number;
+  }>;
+  spacing?: Partial<{
+    cardPadding: string;
+    cardGap: string;
+    formPadding: string;
+    formGap: string;
+    inputPadding: string;
+    buttonPadding: string;
+  }>;
+  borders?: Partial<{
+    cardRadius: string;
+    inputRadius: string;
+    buttonRadius: string;
+    cardBorderWidth: string;
+  }>;
+  shadows?: Partial<{
+    card: string;
+    cardHover: string;
+    form: string;
+  }>;
+}
+
+/**
+ * Page configuration for dynamic page rendering
+ */
+export interface PageConfig {
+  id: string;
+  name: string;
+  serializedState: string; // Craft.js serialized JSON
+  themeOverrides?: ThemeOverrides; // Optional theme customizations
+}
+
+/**
  * Complete tenant configuration
  */
 export interface Tenant {
@@ -149,6 +212,10 @@ export interface Tenant {
   policies: PolicyRule[];
   uxHints: UxHints;
   defaultUserRole?: UserRole;
+  pages?: {
+    flights?: PageConfig;
+    stays?: PageConfig;
+  };
 }
 
 /**
@@ -163,6 +230,10 @@ export interface PublicTenantConfig {
   flightDefaults: FlightDefaults;
   stayDefaults: StayDefaults;
   uxHints: UxHints; // Includes designTokens
+  pages?: {
+    flights?: PageConfig;
+    stays?: PageConfig;
+  };
 }
 
 /**

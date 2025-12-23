@@ -6,13 +6,16 @@ import React, { useState } from 'react';
 import { TenantPicker } from './components/TenantPicker';
 import { TenantShell } from './pages/TenantShell';
 import { PageBuilder } from './pages/PageBuilder';
+import { PageEditor } from './pages/PageEditor';
 import { createApiClient } from './api';
+import { savePageConfig, loadPageConfig } from './utils/pageStorage';
 
 export function App() {
   const [tenantId, setTenantId] = useState<string>('saver-trips');
   const [showBuilder, setShowBuilder] = useState<boolean>(false);
   const [config, setConfig] = useState<any>(null);
   const [tenantName, setTenantName] = useState<string>('');
+  const [reloadKey, setReloadKey] = useState<number>(0);
 
   // ALL HOOKS MUST BE BEFORE ANY CONDITIONAL RETURNS
   React.useEffect(() => {
@@ -34,6 +37,30 @@ export function App() {
   if (showBuilder && config) {
     const apiClient = createApiClient(tenantId);
     
+    // Use new PageEditor if flights page config exists, otherwise use old PageBuilder
+    if (config.tenant.pages?.flights) {
+      // Try to load saved config from localStorage first
+      const savedConfig = loadPageConfig(tenantId, 'flights-page');
+      const pageConfig = savedConfig || config.tenant.pages.flights;
+      
+      return (
+        <PageEditor
+          pageConfig={pageConfig}
+          config={config.tenant}
+          onSave={(serializedState, themeOverrides) => {
+            savePageConfig(tenantId, 'flights-page', serializedState, themeOverrides);
+            console.log('✅ Page saved to localStorage!', { serializedState, themeOverrides });
+            alert('✅ Page saved successfully!\n\n(Currently saved to browser localStorage. In production, this would save to the backend API.)');
+          }}
+          onClose={() => {
+            setShowBuilder(false);
+            setReloadKey(prev => prev + 1); // Force reload of TenantShell
+          }}
+        />
+      );
+    }
+    
+    // Fallback to old page builder
     return (
       <div>
         <div style={{
@@ -82,7 +109,7 @@ export function App() {
         onTenantChange={setTenantId}
         onNavigateToBuilder={() => setShowBuilder(true)}
       />
-      <TenantShell key={tenantId} tenantId={tenantId} />
+      <TenantShell key={`${tenantId}-${reloadKey}`} tenantId={tenantId} />
     </div>
   );
 }

@@ -5,7 +5,7 @@
 import type { Tenant, PublicTenantConfig } from './tenant.types.js';
 
 export function toPublicTenantConfig(tenant: Tenant): PublicTenantConfig {
-  return {
+  const config: PublicTenantConfig = {
     id: tenant.id,
     name: tenant.name,
     enabledVerticals: tenant.enabledVerticals,
@@ -13,5 +13,11 @@ export function toPublicTenantConfig(tenant: Tenant): PublicTenantConfig {
     stayDefaults: tenant.stayDefaults,
     uxHints: tenant.uxHints, // This includes designTokens
   };
+  
+  if (tenant.pages) {
+    config.pages = tenant.pages;
+  }
+  
+  return config;
 }
 

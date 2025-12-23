@@ -5,6 +5,7 @@
 
 import { env } from '../../shared/env.js';
 import type { Tenant, TenantId } from './tenant.types.js';
+import { createDefaultFlightsPage, createDefaultStaysPage } from '../pages/defaultPages.js';
 
 /**
  * Tenant 1: SaverTrips
@@ -105,6 +106,9 @@ const SAVER_TRIPS: Tenant = {
     },
   },
   defaultUserRole: 'student',
+  pages: {
+    flights: createDefaultFlightsPage(),
+  },
 };
 
 /**
@@ -212,6 +216,10 @@ const APEX_RESERVE: Tenant = {
     },
   },
   defaultUserRole: 'executive',
+  pages: {
+    flights: createDefaultFlightsPage(),
+    stays: createDefaultStaysPage(),
+  },
 };
 
 /**
@@ -324,6 +332,10 @@ const GLOBEX_SYSTEMS: Tenant = {
     },
   },
   defaultUserRole: 'employee', // Most users are employees
+  pages: {
+    flights: createDefaultFlightsPage(),
+    stays: createDefaultStaysPage(),
+  },
 };
 
 /**

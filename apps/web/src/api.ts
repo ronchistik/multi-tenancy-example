@@ -2,6 +2,63 @@
  * API client
  */
 
+export interface ThemeOverrides {
+  primaryColor?: string;
+  colors?: Partial<{
+    background: string;
+    cardBackground: string;
+    textPrimary: string;
+    textSecondary: string;
+    border: string;
+    inputBackground: string;
+    inputBorder: string;
+    error: string;
+    errorBackground: string;
+    success: string;
+  }>;
+  typography?: Partial<{
+    fontFamily: string;
+    headingSize: string;
+    headingWeight: number;
+    subheadingSize: string;
+    subheadingWeight: number;
+    bodySize: string;
+    bodyWeight: number;
+    labelSize: string;
+    labelWeight: number;
+    priceSize: string;
+    priceWeight: number;
+    buttonSize: string;
+    buttonWeight: number;
+  }>;
+  spacing?: Partial<{
+    cardPadding: string;
+    cardGap: string;
+    formPadding: string;
+    formGap: string;
+    inputPadding: string;
+    buttonPadding: string;
+  }>;
+  borders?: Partial<{
+    cardRadius: string;
+    inputRadius: string;
+    buttonRadius: string;
+    cardBorderWidth: string;
+  }>;
+  shadows?: Partial<{
+    card: string;
+    cardHover: string;
+    form: string;
+  }>;
+}
+
+export interface PageConfig {
+  id: string;
+  name: string;
+  serializedState: string;
+  themeOverrides?: ThemeOverrides;
+}
+
 export interface TenantConfig {
   id: string;
   name: string;
@@ -15,6 +72,12 @@ export interface TenantConfig {
     minStarRating?: number;
     maxNightlyPrice?: number;
     sortOrder: string;
+    roomsCount: number;
+    guestsCount: number;
+  };
+  pages?: {
+    flights?: PageConfig;
+    stays?: PageConfig;
   };
   uxHints: {
     brandName: string;

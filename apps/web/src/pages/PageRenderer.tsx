@@ -1,0 +1,110 @@
+/**
+ * Page Renderer
+ * Renders pages from JSON config using Craft.js
+ */
+
+import React, { useState, useMemo, createContext, useContext } from 'react';
+import { Editor, Frame } from '@craftjs/core';
+import type { TenantConfig, FlightSearchRequest, FlightOffer, PageConfig } from '../api';
+import { applyThemeOverrides } from '../utils/themeUtils';
+
+// Import all components that can be used in pages
+import { Container } from '../components/Page/Container';
+import { PageTitle } from '../components/Page/PageTitle';
+import { FlightSearchForm } from '../components/Page/FlightSearchForm';
+import { FlightResults } from '../components/Page/FlightResults';
+
+// Runtime props context
+const RuntimePropsContext = createContext<any>(null);
+
+// Wrapper components that inject runtime props
+function ContainerWithProps(props: any) {
+  const runtime = useContext(RuntimePropsContext);
+  return <Container {...props} config={runtime?.config} />;
+}
+ContainerWithProps.craft = { ...Container.craft };
+
+function PageTitleWithProps(props: any) {
+  const runtime = useContext(RuntimePropsContext);
+  return <PageTitle {...props} config={runtime?.config} />;
+}
+PageTitleWithProps.craft = { ...PageTitle.craft };
+
+function FlightSearchFormWithProps(props: any) {
+  const runtime = useContext(RuntimePropsContext);
+  return <FlightSearchForm {...props} config={runtime?.config} onSearch={runtime?.onFlightSearch} loading={runtime?.flightLoading} />;
+}
+FlightSearchFormWithProps.craft = { ...FlightSearchForm.craft };
+
+function FlightResultsWithProps(props: any) {
+  const runtime = useContext(RuntimePropsContext);
+  return <FlightResults {...props} config={runtime?.config} offers={runtime?.flightOffers} error={runtime?.flightError} />;
+}
+FlightResultsWithProps.craft = { ...FlightResults.craft };
+
+interface PageRendererProps {
+  pageConfig: PageConfig;
+  config: TenantConfig;
+  onFlightSearch?: (request: FlightSearchRequest) => Promise<{ offers: FlightOffer[] }>;
+}
+
+export function PageRenderer({ pageConfig, config: baseConfig, onFlightSearch }: PageRendererProps) {
+  // Apply theme overrides
+  const config = useMemo(
+    () => applyThemeOverrides(baseConfig, pageConfig.themeOverrides),
+    [baseConfig, pageConfig.themeOverrides]
+  );
+  
+  // State for flight results
+  const [flightOffers, setFlightOffers] = useState<FlightOffer[]>([]);
+  const [flightLoading, setFlightLoading] = useState(false);
+  const [flightError, setFlightError] = useState<string | null>(null);
+
+  // Handle flight search
+  const handleFlightSearch = async (request: FlightSearchRequest) => {
+    if (!onFlightSearch) return;
+    
+    setFlightLoading(true);
+    setFlightError(null);
+    try {
+      const result = await onFlightSearch(request);
+      setFlightOffers(result.offers);
+    } catch (err) {
+      setFlightError(err instanceof Error ? err.message : 'Search failed');
+    } finally {
+      setFlightLoading(false);
+    }
+  };
+
+  // Resolver uses wrapped components with context
+  const resolver = {
+    Container: ContainerWithProps,
+    PageTitle: PageTitleWithProps,
+    FlightSearchForm: FlightSearchFormWithProps,
+    FlightResults: FlightResultsWithProps,
+  };
+
+  // Runtime props for context
+  const runtimeProps = {
+    config,
+    onFlightSearch: handleFlightSearch,
+    flightOffers,
+    flightLoading,
+    flightError,
+  };
+
+  // Parse the serialized state
+  const serializedState = JSON.parse(pageConfig.serializedState);
+
+  return (
+    <RuntimePropsContext.Provider value={runtimeProps}>
+      <Editor
+        resolver={resolver}
+        enabled={false} // Read-only mode (not editable)
+      >
+        <Frame data={serializedState} />
+      </Editor>
+    </RuntimePropsContext.Provider>
+  );
+}
+
