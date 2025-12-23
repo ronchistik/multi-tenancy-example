@@ -587,7 +587,6 @@ function renderComponent(component: PageComponent, tokens: any, config: TenantCo
         </div>
       );
 
-    case 'hotelSearch':
     case 'twoColumn':
       return (
         <div style={{
