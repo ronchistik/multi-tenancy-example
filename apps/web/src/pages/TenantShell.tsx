@@ -2,7 +2,7 @@
  * Tenant shell - loads config and renders appropriate pages
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createApiClient, type TenantConfig, type Location } from '../api';
 import { Layout } from '../components/Layout';
 import { FlightsPage } from './FlightsPage';
@@ -10,6 +10,7 @@ import { StaysPage } from './StaysPage';
 import { PageRenderer } from './PageRenderer';
 import { applyTenantTheme } from '../tenantUx';
 import { loadPageConfig } from '../utils/pageStorage';
+import { applyThemeOverrides } from '../utils/themeUtils';
 
 interface TenantShellProps {
   tenantId: string;
@@ -27,6 +28,20 @@ export function TenantShell({ tenantId }: TenantShellProps) {
   useEffect(() => {
     loadConfig();
   }, [tenantId]);
+
+  // Load saved page config - must be called unconditionally (before any returns)
+  const savedFlightsConfig = loadPageConfig(tenantId, 'flights-page');
+  
+  // Apply theme overrides from the active page to the layout config
+  // Must be called unconditionally (React hooks rule)
+  const effectiveConfig = useMemo(() => {
+    if (!config) return null;
+    const flightsPageConfig = savedFlightsConfig || config.pages?.flights;
+    if (activeTab === 'flights' && flightsPageConfig?.themeOverrides) {
+      return applyThemeOverrides(config, flightsPageConfig.themeOverrides);
+    }
+    return config;
+  }, [config, activeTab, savedFlightsConfig]);
 
   const loadConfig = async () => {
     setLoading(true);
@@ -55,15 +70,16 @@ export function TenantShell({ tenantId }: TenantShellProps) {
     return <div style={styles.loading}>Loading tenant configuration...</div>;
   }
 
-  if (error || !config) {
+  if (error || !config || !effectiveConfig) {
     return <div style={styles.error}>Error: {error || 'No config'}</div>;
   }
 
   const flightsEnabled = config.enabledVerticals.includes('flights');
   const staysEnabled = config.enabledVerticals.includes('stays');
+  const flightsPageConfig = savedFlightsConfig || config.pages?.flights;
 
   return (
-    <Layout config={config}>
+    <Layout config={effectiveConfig}>
       {/* Vertical tabs */}
       {flightsEnabled && staysEnabled && (
         <div style={styles.tabs}>
@@ -71,7 +87,7 @@ export function TenantShell({ tenantId }: TenantShellProps) {
             onClick={() => setActiveTab('flights')}
             style={{
               ...styles.tab,
-              background: activeTab === 'flights' ? config.uxHints.primaryColor : '#f0f0f0',
+              background: activeTab === 'flights' ? effectiveConfig.uxHints.primaryColor : '#f0f0f0',
               color: activeTab === 'flights' ? 'white' : '#666',
             }}
           >
@@ -81,7 +97,7 @@ export function TenantShell({ tenantId }: TenantShellProps) {
             onClick={() => setActiveTab('stays')}
             style={{
               ...styles.tab,
-              background: activeTab === 'stays' ? config.uxHints.primaryColor : '#f0f0f0',
+              background: activeTab === 'stays' ? effectiveConfig.uxHints.primaryColor : '#f0f0f0',
               color: activeTab === 'stays' ? 'white' : '#666',
             }}
           >
@@ -93,19 +109,15 @@ export function TenantShell({ tenantId }: TenantShellProps) {
       {/* Vertical disabled message */}
       {!staysEnabled && activeTab === 'stays' && (
         <div style={styles.disabledMessage}>
-          Hotels are not available for {config.uxHints.brandName}
+          Hotels are not available for {effectiveConfig.uxHints.brandName}
         </div>
       )}
 
       {/* Content */}
-      {activeTab === 'flights' && flightsEnabled && (() => {
-        // Try to load saved config from localStorage
-        const savedConfig = loadPageConfig(tenantId, 'flights-page');
-        const pageConfig = savedConfig || config.pages?.flights;
-        
-        return pageConfig ? (
+      {activeTab === 'flights' && flightsEnabled && (
+        flightsPageConfig ? (
           <PageRenderer
-            pageConfig={pageConfig}
+            pageConfig={flightsPageConfig}
             config={config}
             onFlightSearch={(req) => apiClient.searchFlights(req)}
           />
@@ -114,8 +126,8 @@ export function TenantShell({ tenantId }: TenantShellProps) {
             config={config}
             onSearch={(req) => apiClient.searchFlights(req)}
           />
-        );
-      })()}
+        )
+      )}
 
       {activeTab === 'stays' && staysEnabled && (
         <StaysPage

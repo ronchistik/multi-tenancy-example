@@ -15,6 +15,10 @@ import { Container } from '../components/Page/Container';
 import { PageTitle } from '../components/Page/PageTitle';
 import { FlightSearchForm } from '../components/Page/FlightSearchForm';
 import { FlightResults } from '../components/Page/FlightResults';
+import { Text } from '../components/Page/Text';
+import { Button } from '../components/Page/Button';
+import { Divider } from '../components/Page/Divider';
+import { Spacer } from '../components/Page/Spacer';
 
 // Runtime props context
 const RuntimePropsContext = createContext<any>(null);
@@ -43,6 +47,30 @@ function FlightResultsWithProps(props: any) {
   return <FlightResults {...props} config={runtime?.config} offers={runtime?.flightOffers} error={runtime?.flightError} loading={runtime?.flightLoading} hasSearched={runtime?.hasSearched} />;
 }
 FlightResultsWithProps.craft = { ...FlightResults.craft };
+
+// Basic component wrappers
+function TextWithProps(props: any) {
+  const runtime = useContext(RuntimePropsContext);
+  return <Text {...props} config={runtime?.config} />;
+}
+TextWithProps.craft = { ...Text.craft };
+
+function ButtonWithProps(props: any) {
+  const runtime = useContext(RuntimePropsContext);
+  return <Button {...props} config={runtime?.config} />;
+}
+ButtonWithProps.craft = { ...Button.craft };
+
+function DividerWithProps(props: any) {
+  const runtime = useContext(RuntimePropsContext);
+  return <Divider {...props} config={runtime?.config} />;
+}
+DividerWithProps.craft = { ...Divider.craft };
+
+function SpacerWithProps(props: any) {
+  return <Spacer {...props} />;
+}
+SpacerWithProps.craft = { ...Spacer.craft };
 
 interface PageEditorProps {
   pageConfig: PageConfig;
@@ -92,6 +120,10 @@ export function PageEditor({ pageConfig, config: baseConfig, onSave, onClose }: 
     PageTitle: PageTitleWithProps,
     FlightSearchForm: FlightSearchFormWithProps,
     FlightResults: FlightResultsWithProps,
+    Text: TextWithProps,
+    Button: ButtonWithProps,
+    Divider: DividerWithProps,
+    Spacer: SpacerWithProps,
   };
 
   // Runtime props for context
@@ -194,16 +226,64 @@ export function PageEditor({ pageConfig, config: baseConfig, onSave, onClose }: 
               <Toolbox config={baseConfig} />
             )}
 
-            {/* Center Panel - Canvas */}
+            {/* Center Panel - Canvas with Preview */}
             <div style={{
               flex: 1,
-              background: '#f5f5f5',
+              background: '#e5e7eb',
               overflow: 'auto',
               padding: '20px',
             }}>
-              <Frame data={serializedState}>
-                <Element is={ContainerWithProps} canvas padding="20px" />
-              </Frame>
+              {/* Preview container that mimics actual page */}
+              <div style={{
+                background: config.uxHints.designTokens.colors.background,
+                minHeight: 'calc(100vh - 140px)',
+                borderRadius: '8px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                overflow: 'hidden',
+              }}>
+                {/* Header Preview */}
+                <header style={{ 
+                  color: 'white',
+                  padding: config.uxHints.layout === 'table' ? '12px 20px' : '28px 20px',
+                  textAlign: 'center',
+                  background: config.uxHints.primaryColor,
+                  boxShadow: config.uxHints.layout === 'table' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                }}>
+                  <h1 style={{
+                    fontSize: config.uxHints.designTokens.typography.headingSize,
+                    fontWeight: config.uxHints.designTokens.typography.headingWeight,
+                    fontFamily: config.uxHints.designTokens.typography.fontFamily,
+                    marginBottom: '4px',
+                    letterSpacing: config.uxHints.priceEmphasis === 'low' ? '2px' : 'normal',
+                    textTransform: config.uxHints.priceEmphasis === 'low' ? 'uppercase' : 'none',
+                  }}>
+                    {config.uxHints.brandName}
+                  </h1>
+                  {config.uxHints.layout !== 'table' && (
+                    <p style={{
+                      fontSize: config.uxHints.designTokens.typography.bodySize,
+                      fontFamily: config.uxHints.designTokens.typography.fontFamily,
+                      opacity: 0.9,
+                      margin: 0,
+                    }}>
+                      {config.uxHints.tagline || 'Multi-Tenant Travel Platform Demo'}
+                    </p>
+                  )}
+                </header>
+                
+                {/* Page Content */}
+                <main style={{
+                  padding: '20px',
+                  maxWidth: config.uxHints.layout === 'table' ? '1600px' : '1200px',
+                  margin: '0 auto',
+                  fontFamily: config.uxHints.designTokens.typography.fontFamily,
+                  color: config.uxHints.designTokens.colors.textPrimary,
+                }}>
+                  <Frame data={serializedState}>
+                    <Element is={ContainerWithProps} canvas padding="20px" />
+                  </Frame>
+                </main>
+              </div>
             </div>
 
             {/* Right Panel - Settings */}
@@ -222,59 +302,104 @@ export function PageEditor({ pageConfig, config: baseConfig, onSave, onClose }: 
  * Component Toolbox
  */
 function Toolbox({ config }: { config: TenantConfig }) {
-  const { connectors, query } = useEditor();
+  const { connectors } = useEditor();
   const tokens = config.uxHints.designTokens;
 
-  const components = [
+  const mainComponents = [
     { name: 'Page Title', component: PageTitleWithProps, enabled: true },
     { name: 'Flight Search', component: FlightSearchFormWithProps, enabled: config.enabledVerticals.includes('flights') },
     { name: 'Flight Results', component: FlightResultsWithProps, enabled: config.enabledVerticals.includes('flights') },
     { name: 'Container', component: ContainerWithProps, enabled: true },
   ].filter(c => c.enabled);
 
+  const basicComponents = [
+    { name: 'Text', component: TextWithProps },
+    { name: 'Button', component: ButtonWithProps },
+    { name: 'Divider', component: DividerWithProps },
+    { name: 'Spacer', component: SpacerWithProps },
+  ];
+
+  const sectionTitleStyle: React.CSSProperties = {
+    fontSize: '11px',
+    fontWeight: 700,
+    color: '#6b7280',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    marginBottom: '10px',
+    marginTop: '20px',
+  };
+
+  const buttonStyle: React.CSSProperties = {
+    width: '100%',
+    marginBottom: '6px',
+    padding: '10px 12px',
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'grab',
+    fontSize: '13px',
+    fontWeight: 500,
+    textAlign: 'left',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+  };
+
   return (
     <div style={{
       width: '250px',
-      background: tokens.colors.cardBackground,
-      borderRight: '1px solid ' + tokens.colors.border,
-      padding: '20px',
+      background: '#fff',
+      borderRight: '1px solid #e5e7eb',
+      padding: '16px',
       overflow: 'auto',
     }}>
       <h3 style={{
-        fontSize: tokens.typography.subheadingSize,
-        fontWeight: tokens.typography.subheadingWeight,
-        color: tokens.colors.textPrimary,
-        marginBottom: '16px',
+        fontSize: '16px',
+        fontWeight: 600,
+        color: '#111827',
+        marginBottom: '4px',
       }}>
         Components
       </h3>
+      <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '16px' }}>
+        Drag to add to page
+      </p>
 
-      {components.map(({ name, component }) => (
+      {/* Main Components */}
+      <div style={sectionTitleStyle}>Main Components</div>
+      {mainComponents.map(({ name, component }) => (
         <button
           key={name}
           ref={(ref) => {
             if (ref) {
-              connectors.create(
-                ref,
-                React.createElement(component)
-              );
+              connectors.create(ref, React.createElement(component));
             }
           }}
           style={{
-            width: '100%',
-            marginBottom: '8px',
-            padding: '10px',
+            ...buttonStyle,
             background: config.uxHints.primaryColor,
-            color: 'white',
-            border: 'none',
-            borderRadius: tokens.borders.buttonRadius,
-            cursor: 'pointer',
-            fontSize: tokens.typography.bodySize,
-            fontFamily: tokens.typography.fontFamily,
-            textAlign: 'left',
           }}
         >
-          + {name}
+          <span style={{ opacity: 0.7 }}>+</span> {name}
+        </button>
+      ))}
+
+      {/* Basic Components */}
+      <div style={sectionTitleStyle}>Basic Components</div>
+      {basicComponents.map(({ name, component }) => (
+        <button
+          key={name}
+          ref={(ref) => {
+            if (ref) {
+              connectors.create(ref, React.createElement(component));
+            }
+          }}
+          style={{
+            ...buttonStyle,
+            background: '#6b7280',
+          }}
+        >
+          <span style={{ opacity: 0.7 }}>+</span> {name}
         </button>
       ))}
     </div>

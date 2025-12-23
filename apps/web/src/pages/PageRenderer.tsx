@@ -13,6 +13,10 @@ import { Container } from '../components/Page/Container';
 import { PageTitle } from '../components/Page/PageTitle';
 import { FlightSearchForm } from '../components/Page/FlightSearchForm';
 import { FlightResults } from '../components/Page/FlightResults';
+import { Text } from '../components/Page/Text';
+import { Button } from '../components/Page/Button';
+import { Divider } from '../components/Page/Divider';
+import { Spacer } from '../components/Page/Spacer';
 
 // Runtime props context
 const RuntimePropsContext = createContext<any>(null);
@@ -41,6 +45,30 @@ function FlightResultsWithProps(props: any) {
   return <FlightResults {...props} config={runtime?.config} offers={runtime?.flightOffers} error={runtime?.flightError} loading={runtime?.flightLoading} hasSearched={runtime?.hasSearched} />;
 }
 FlightResultsWithProps.craft = { ...FlightResults.craft };
+
+// Basic component wrappers
+function TextWithProps(props: any) {
+  const runtime = useContext(RuntimePropsContext);
+  return <Text {...props} config={runtime?.config} />;
+}
+TextWithProps.craft = { ...Text.craft };
+
+function ButtonWithProps(props: any) {
+  const runtime = useContext(RuntimePropsContext);
+  return <Button {...props} config={runtime?.config} />;
+}
+ButtonWithProps.craft = { ...Button.craft };
+
+function DividerWithProps(props: any) {
+  const runtime = useContext(RuntimePropsContext);
+  return <Divider {...props} config={runtime?.config} />;
+}
+DividerWithProps.craft = { ...Divider.craft };
+
+function SpacerWithProps(props: any) {
+  return <Spacer {...props} />;
+}
+SpacerWithProps.craft = { ...Spacer.craft };
 
 interface PageRendererProps {
   pageConfig: PageConfig;
@@ -84,6 +112,10 @@ export function PageRenderer({ pageConfig, config: baseConfig, onFlightSearch }:
     PageTitle: PageTitleWithProps,
     FlightSearchForm: FlightSearchFormWithProps,
     FlightResults: FlightResultsWithProps,
+    Text: TextWithProps,
+    Button: ButtonWithProps,
+    Divider: DividerWithProps,
+    Spacer: SpacerWithProps,
   };
 
   // Runtime props for context
