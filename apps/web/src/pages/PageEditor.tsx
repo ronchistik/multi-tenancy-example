@@ -212,7 +212,7 @@ export function PageEditor({ pageConfig, config: baseConfig, initialThemeOverrid
             onClick={() => setShowThemeEditor(!showThemeEditor)}
             style={{
               padding: '8px 16px',
-              background: showThemeEditor ? config.uxHints.primaryColor : '#f3f4f6',
+              background: showThemeEditor ? baseConfig.uxHints.primaryColor : '#f3f4f6',
               color: showThemeEditor ? 'white' : '#374151',
               border: showThemeEditor ? 'none' : '1px solid #d1d5db',
               borderRadius: '6px',
