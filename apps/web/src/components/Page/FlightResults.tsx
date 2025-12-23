@@ -16,6 +16,7 @@ interface FlightResultsRuntimeProps extends FlightResultsProps {
   error?: string | null;
   loading?: boolean;
   hasSearched?: boolean; // Only show empty message after a search was performed
+  isEditor?: boolean; // True when in page editor, false on actual page
 }
 
 export function FlightResults({ 
@@ -26,10 +27,14 @@ export function FlightResults({
   error,
   loading = false,
   hasSearched = false,
+  isEditor = false,
 }: FlightResultsRuntimeProps) {
   const { connectors: { connect, drag } } = useNode();
   const tokens = config.uxHints.designTokens;
   const isTableLayout = config.uxHints.layout === 'table';
+
+  // Show preview placeholder ONLY in editor when no search has been done
+  const showPreview = isEditor && !hasSearched && offers.length === 0 && !error && !loading;
 
   return (
     <div ref={(ref) => ref && connect(drag(ref))}>
@@ -70,6 +75,87 @@ export function FlightResults({
           )}
         </div>
       ) : null}
+
+      {/* Preview placeholder - shows in editor when no search done */}
+      {showPreview && (
+        <div style={{ marginTop: '20px', opacity: 0.5 }}>
+          <div style={{
+            background: `repeating-linear-gradient(
+              45deg,
+              ${tokens.colors.cardBackground},
+              ${tokens.colors.cardBackground} 10px,
+              ${tokens.colors.border} 10px,
+              ${tokens.colors.border} 11px
+            )`,
+            padding: '12px',
+            borderRadius: tokens.borders.cardRadius,
+            marginBottom: '12px',
+            border: `2px dashed ${tokens.colors.border}`,
+          }}>
+            <h3 style={{
+              fontSize: tokens.typography.subheadingSize,
+              fontWeight: tokens.typography.subheadingWeight,
+              fontFamily: tokens.typography.fontFamily,
+              color: tokens.colors.textPrimary,
+              marginBottom: '16px',
+            }}>
+              {title || '3 flights found'} <span style={{ fontSize: '12px', fontWeight: 400 }}>(Preview)</span>
+            </h3>
+            
+            {/* Fake flight cards */}
+            {[1, 2, 3].map((i) => (
+              <div key={i} style={{
+                background: tokens.colors.cardBackground,
+                padding: '16px',
+                borderRadius: tokens.borders.cardRadius,
+                marginBottom: '12px',
+                border: `1px solid ${tokens.colors.border}`,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+                <div>
+                  <div style={{
+                    fontFamily: tokens.typography.fontFamily,
+                    fontSize: tokens.typography.bodySize,
+                    fontWeight: 600,
+                    color: tokens.colors.textPrimary,
+                    marginBottom: '4px',
+                  }}>
+                    ✈️ JFK → LAX
+                  </div>
+                  <div style={{
+                    fontFamily: tokens.typography.fontFamily,
+                    fontSize: tokens.typography.labelSize,
+                    color: tokens.colors.textSecondary,
+                  }}>
+                    Sample Airline • {5 + i}h 30m • Nonstop
+                  </div>
+                </div>
+                <div style={{
+                  fontFamily: tokens.typography.fontFamily,
+                  fontSize: tokens.typography.subheadingSize,
+                  fontWeight: tokens.typography.subheadingWeight,
+                  color: config.uxHints.primaryColor,
+                }}>
+                  ${199 + (i * 50)}
+                </div>
+              </div>
+            ))}
+            
+            <div style={{
+              textAlign: 'center',
+              fontSize: '11px',
+              color: tokens.colors.textSecondary,
+              fontFamily: tokens.typography.fontFamily,
+              fontStyle: 'italic',
+              marginTop: '8px',
+            }}>
+              This is a preview. Real results will appear after searching.
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Empty message - only show after search completes with no results */}
       {hasSearched && offers.length === 0 && !error && !loading && (

@@ -44,7 +44,7 @@ FlightSearchFormWithProps.craft = { ...FlightSearchForm.craft };
 
 function FlightResultsWithProps(props: any) {
   const runtime = useContext(RuntimePropsContext);
-  return <FlightResults {...props} config={runtime?.config} offers={runtime?.flightOffers} error={runtime?.flightError} loading={runtime?.flightLoading} hasSearched={runtime?.hasSearched} />;
+  return <FlightResults {...props} config={runtime?.config} offers={runtime?.flightOffers} error={runtime?.flightError} loading={runtime?.flightLoading} hasSearched={runtime?.hasSearched} isEditor={true} />;
 }
 FlightResultsWithProps.craft = { ...FlightResults.craft };
 
