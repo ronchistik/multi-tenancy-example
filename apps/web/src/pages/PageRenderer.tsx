@@ -38,7 +38,7 @@ FlightSearchFormWithProps.craft = { ...FlightSearchForm.craft };
 
 function FlightResultsWithProps(props: any) {
   const runtime = useContext(RuntimePropsContext);
-  return <FlightResults {...props} config={runtime?.config} offers={runtime?.flightOffers} error={runtime?.flightError} />;
+  return <FlightResults {...props} config={runtime?.config} offers={runtime?.flightOffers} error={runtime?.flightError} loading={runtime?.flightLoading} hasSearched={runtime?.hasSearched} />;
 }
 FlightResultsWithProps.craft = { ...FlightResults.craft };
 
@@ -59,6 +59,7 @@ export function PageRenderer({ pageConfig, config: baseConfig, onFlightSearch }:
   const [flightOffers, setFlightOffers] = useState<FlightOffer[]>([]);
   const [flightLoading, setFlightLoading] = useState(false);
   const [flightError, setFlightError] = useState<string | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
 
   // Handle flight search
   const handleFlightSearch = async (request: FlightSearchRequest) => {
@@ -66,6 +67,7 @@ export function PageRenderer({ pageConfig, config: baseConfig, onFlightSearch }:
     
     setFlightLoading(true);
     setFlightError(null);
+    setHasSearched(true);
     try {
       const result = await onFlightSearch(request);
       setFlightOffers(result.offers);
@@ -91,6 +93,7 @@ export function PageRenderer({ pageConfig, config: baseConfig, onFlightSearch }:
     flightOffers,
     flightLoading,
     flightError,
+    hasSearched,
   };
 
   // Parse the serialized state

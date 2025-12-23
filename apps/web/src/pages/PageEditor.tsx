@@ -40,7 +40,7 @@ FlightSearchFormWithProps.craft = { ...FlightSearchForm.craft };
 
 function FlightResultsWithProps(props: any) {
   const runtime = useContext(RuntimePropsContext);
-  return <FlightResults {...props} config={runtime?.config} offers={runtime?.flightOffers} error={runtime?.flightError} />;
+  return <FlightResults {...props} config={runtime?.config} offers={runtime?.flightOffers} error={runtime?.flightError} loading={runtime?.flightLoading} hasSearched={runtime?.hasSearched} />;
 }
 FlightResultsWithProps.craft = { ...FlightResults.craft };
 
@@ -56,6 +56,7 @@ export function PageEditor({ pageConfig, config: baseConfig, onSave, onClose }: 
   const [flightOffers, setFlightOffers] = useState<FlightOffer[]>([]);
   const [flightLoading, setFlightLoading] = useState(false);
   const [flightError, setFlightError] = useState<string | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
   
   // State for theme overrides
   const [themeOverrides, setThemeOverrides] = useState<ThemeOverrides | undefined>(pageConfig.themeOverrides);
@@ -71,6 +72,7 @@ export function PageEditor({ pageConfig, config: baseConfig, onSave, onClose }: 
   const handleFlightSearch = async (request: FlightSearchRequest) => {
     setFlightLoading(true);
     setFlightError(null);
+    setHasSearched(true);
     // Mock data for preview
     setTimeout(() => {
       setFlightOffers([]);
@@ -99,6 +101,7 @@ export function PageEditor({ pageConfig, config: baseConfig, onSave, onClose }: 
     flightOffers,
     flightLoading,
     flightError,
+    hasSearched,
   };
 
   // Parse the serialized state

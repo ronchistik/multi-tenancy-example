@@ -14,6 +14,8 @@ interface FlightResultsRuntimeProps extends FlightResultsProps {
   config: TenantConfig;
   offers: FlightOffer[];
   error?: string | null;
+  loading?: boolean;
+  hasSearched?: boolean; // Only show empty message after a search was performed
 }
 
 export function FlightResults({ 
@@ -21,7 +23,9 @@ export function FlightResults({
   emptyMessage = 'No flights found. Try a different search.',
   config, 
   offers,
-  error
+  error,
+  loading = false,
+  hasSearched = false,
 }: FlightResultsRuntimeProps) {
   const { connectors: { connect, drag } } = useNode();
   const tokens = config.uxHints.designTokens;
@@ -65,7 +69,10 @@ export function FlightResults({
             <FlightCards offers={offers} config={config} />
           )}
         </div>
-      ) : !error ? (
+      ) : null}
+      
+      {/* Empty message - only show after search completes with no results */}
+      {hasSearched && offers.length === 0 && !error && !loading && (
         <div style={{
           textAlign: 'center',
           padding: '40px',
@@ -75,7 +82,7 @@ export function FlightResults({
         }}>
           {emptyMessage}
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

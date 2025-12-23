@@ -2,7 +2,8 @@
  * RenderNode - Adds visual indicators and toolbar to components
  */
 
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
+import ReactDOM from 'react-dom';
 import { useNode, useEditor } from '@craftjs/core';
 import { ROOT_NODE } from '@craftjs/utils';
 
@@ -30,7 +31,15 @@ export function RenderNode({ render }: { render: React.ReactElement }) {
     props: node.data.props,
   }));
 
-  const currentRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState({ left: 0, top: 0 });
+
+  // Update position when DOM changes
+  useEffect(() => {
+    if (dom) {
+      const rect = dom.getBoundingClientRect();
+      setPos({ left: rect.left, top: rect.top - 36 });
+    }
+  }, [dom, isHover, isActive]);
 
   useEffect(() => {
     if (dom) {
@@ -39,97 +48,119 @@ export function RenderNode({ render }: { render: React.ReactElement }) {
     }
   }, [dom, isActive, isHover]);
 
-  const handleDelete = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // Keep node selected when clicking toolbar
+  const keepSelected = useCallback(() => {
+    actions.selectNode(id);
+  }, [actions, id]);
+
+  const handleDelete = useCallback(() => {
     actions.delete(id);
   }, [actions, id]);
 
-  const handleSelectParent = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    actions.selectNode(parent);
+  const handleSelectParent = useCallback(() => {
+    if (parent) actions.selectNode(parent);
   }, [actions, parent]);
+
+  // Don't render for root or if not hovered/active
+  if (id === ROOT_NODE || (!isHover && !isActive)) {
+    return <>{render}</>;
+  }
+
+  // Use portal to render toolbar outside of Craft.js event handlers
+  const toolbar = ReactDOM.createPortal(
+    <div
+      style={{
+        position: 'fixed',
+        left: pos.left,
+        top: pos.top,
+        zIndex: 99999,
+      }}
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        keepSelected();
+      }}
+    >
+      <div
+        style={{
+          background: '#2563eb',
+          color: 'white',
+          padding: '6px 12px',
+          borderRadius: '6px',
+          fontSize: '12px',
+          fontWeight: 600,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        <span style={{ userSelect: 'none' }}>{name}</span>
+        
+        {moveable && (
+          <div
+            ref={drag as any}
+            style={{
+              cursor: 'grab',
+              padding: '4px 8px',
+              display: 'flex',
+              alignItems: 'center',
+              background: 'rgba(255,255,255,0.15)',
+              borderRadius: '4px',
+            }}
+            title="Drag to reorder"
+          >
+            ⠿
+          </div>
+        )}
+
+        {parent && parent !== ROOT_NODE && (
+          <div
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              handleSelectParent();
+            }}
+            style={{
+              cursor: 'pointer',
+              padding: '4px 8px',
+              display: 'flex',
+              alignItems: 'center',
+              background: 'rgba(255,255,255,0.15)',
+              borderRadius: '4px',
+            }}
+            title="Select parent"
+          >
+            ↑
+          </div>
+        )}
+
+        {deletable && (
+          <div
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              handleDelete();
+            }}
+            style={{
+              cursor: 'pointer',
+              padding: '4px 8px',
+              display: 'flex',
+              alignItems: 'center',
+              background: 'rgba(255,255,255,0.15)',
+              borderRadius: '4px',
+            }}
+            title="Delete component"
+          >
+            🗑
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body
+  );
 
   return (
     <>
-      {id !== ROOT_NODE && (isHover || isActive) && (
-        <div
-          ref={currentRef}
-          style={{
-            position: 'fixed',
-            left: dom ? `${dom.getBoundingClientRect().left}px` : '0',
-            top: dom ? `${dom.getBoundingClientRect().top - 32}px` : '0',
-            zIndex: 9999,
-          }}
-        >
-          <div
-            style={{
-              background: '#2563eb',
-              color: 'white',
-              padding: '6px 10px',
-              borderRadius: '4px',
-              fontSize: '12px',
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            <span style={{ userSelect: 'none' }}>{name}</span>
-            
-            {moveable && (
-              <div
-                ref={drag as any}
-                style={{
-                  cursor: 'move',
-                  padding: '2px 6px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  borderLeft: '1px solid rgba(255,255,255,0.3)',
-                  marginLeft: '4px',
-                  paddingLeft: '8px',
-                }}
-                title="Drag to reorder"
-              >
-                ⠿
-              </div>
-            )}
-
-            {parent && parent !== ROOT_NODE && (
-              <div
-                onClick={handleSelectParent}
-                style={{
-                  cursor: 'pointer',
-                  padding: '2px 6px',
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-                title="Select parent"
-              >
-                ↑
-              </div>
-            )}
-
-            {deletable && (
-              <div
-                onClick={handleDelete}
-                style={{
-                  cursor: 'pointer',
-                  padding: '2px 6px',
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-                title="Delete component"
-              >
-                🗑
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {toolbar}
       {render}
     </>
   );
