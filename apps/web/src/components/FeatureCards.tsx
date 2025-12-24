@@ -3,7 +3,7 @@
  * Displays Trivago-style feature cards from tenant config
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { TenantConfig } from '../api';
 
 interface FeatureCardsProps {
@@ -13,15 +13,31 @@ interface FeatureCardsProps {
 export function FeatureCards({ config }: FeatureCardsProps) {
   const cards = config.uxHints.featureCards;
   const tokens = config.uxHints.designTokens;
+  
+  // Responsive sizing for smaller screens
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsSmallScreen(window.innerWidth < 1200);
+    };
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   if (!cards || cards.length === 0) return null;
+  
+  const imageSize = isSmallScreen ? { width: '100px', height: '75px' } : { width: '160px', height: '120px' };
+  const containerPadding = isSmallScreen ? '24px 16px' : '48px 20px';
+  const gap = isSmallScreen ? '16px' : '32px';
 
   return (
     <div style={{
       display: 'grid',
       gridTemplateColumns: `repeat(${Math.min(cards.length, 3)}, 1fr)`,
-      gap: '32px',
-      padding: '48px 20px',
+      gap,
+      padding: containerPadding,
       maxWidth: '1000px',
       margin: '0 auto',
       background: tokens?.colors?.background || '#f8f9fa',
@@ -31,14 +47,14 @@ export function FeatureCards({ config }: FeatureCardsProps) {
           key={index}
           style={{
             textAlign: 'center',
-            padding: '20px',
+            padding: isSmallScreen ? '12px' : '20px',
           }}
         >
           {/* Cartoon illustration */}
           <div style={{
-            width: '160px',
-            height: '120px',
-            margin: '0 auto 20px',
+            width: imageSize.width,
+            height: imageSize.height,
+            margin: '0 auto 12px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

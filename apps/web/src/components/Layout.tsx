@@ -2,7 +2,7 @@
  * Layout component
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { TenantConfig } from '../api';
 import { FeatureCards } from './FeatureCards';
 
@@ -16,6 +16,24 @@ export function Layout({ config, children, hideFeatureCards = false }: LayoutPro
   const tokens = config.uxHints.designTokens;
   const isDense = config.uxHints.layout === 'table';
   const hasHeroImage = !!config.uxHints.backgroundImage;
+  
+  // Responsive sizing for smaller screens
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsSmallScreen(window.innerWidth < 1200);
+    };
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+  
+  // Responsive hero sizes
+  const heroHeight = isSmallScreen ? '180px' : '280px';
+  const heroTitleSize = isSmallScreen ? '28px' : '42px';
+  const heroSubtitleSize = isSmallScreen ? '14px' : '18px';
+  const heroPadding = isSmallScreen ? '24px 16px' : '40px 20px';
   
   return (
     <div style={{
@@ -33,13 +51,13 @@ export function Layout({ config, children, hideFeatureCards = false }: LayoutPro
         position: 'relative',
         overflow: 'hidden',
         ...(hasHeroImage ? {
-          minHeight: '280px',
+          minHeight: heroHeight,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
         } : {
-          padding: isDense ? '12px 20px' : '28px 20px',
+          padding: isDense ? '12px 20px' : (isSmallScreen ? '20px 16px' : '28px 20px'),
         background: config.uxHints.primaryColor,
         boxShadow: isDense ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
         }),
@@ -77,12 +95,12 @@ export function Layout({ config, children, hideFeatureCards = false }: LayoutPro
         <div style={{ 
           position: 'relative', 
           zIndex: 1, 
-          padding: hasHeroImage ? '40px 20px' : '0',
+          padding: hasHeroImage ? heroPadding : '0',
       }}>
         <h1 style={{
-            fontSize: hasHeroImage ? '42px' : tokens.typography.headingSize,
+            fontSize: hasHeroImage ? heroTitleSize : tokens.typography.headingSize,
           fontWeight: tokens.typography.headingWeight,
-            marginBottom: hasHeroImage ? '12px' : '4px',
+            marginBottom: hasHeroImage ? (isSmallScreen ? '8px' : '12px') : '4px',
             letterSpacing: config.uxHints.priceEmphasis === 'low' ? '4px' : '1px',
           textTransform: config.uxHints.priceEmphasis === 'low' ? 'uppercase' : 'none',
             textShadow: hasHeroImage ? '0 2px 20px rgba(0,0,0,0.5)' : 'none',
@@ -90,7 +108,7 @@ export function Layout({ config, children, hideFeatureCards = false }: LayoutPro
           {config.uxHints.brandName}
         </h1>
         <p style={{
-            fontSize: hasHeroImage ? '18px' : tokens.typography.bodySize,
+            fontSize: hasHeroImage ? heroSubtitleSize : tokens.typography.bodySize,
           opacity: 0.9,
             display: isDense && !hasHeroImage ? 'none' : 'block',
             textShadow: hasHeroImage ? '0 1px 10px rgba(0,0,0,0.5)' : 'none',
