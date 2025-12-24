@@ -1,4 +1,4 @@
-# Odynn Multi-Tenant Travel Platform
+# Multi-Tenant Travel Platform
 
 > **Take-Home Assignment Submission**  
 > A production-quality, multi-tenant travel search platform built with TypeScript, Fastify, React, and Duffel APIs.
@@ -74,7 +74,7 @@ API_PORT=5050
 API_HOST=0.0.0.0
 NODE_ENV=development
 
-# Duffel API Keys (sandbox keys from Odynn email)
+# Duffel API Keys (sandbox keys from email)
 # Replace these with the actual keys provided in the assignment email
 DUFFEL_KEY_SAVER_TRIPS=duffel_test__YOUR_KEY_HERE
 DUFFEL_KEY_APEX_RESERVE=duffel_test__YOUR_KEY_HERE
@@ -1025,7 +1025,7 @@ Adding a vertical: **4 files** (domain service, provider, route, frontend page)
 ## Author
 
 **Ron Chistik**  
-Submission for Odynn Engineering Take-Home Assignment  
+Submission for Take-Home Assignment  
 December 2025
 
 ---
