@@ -12,6 +12,7 @@
 - [Architecture](#architecture)
 - [Tenant Configurations](#tenant-configurations)
 - [Policies & Promotions](#policies--promotions)
+- [Database Storage](#database-storage)
 - [API Documentation](#api-documentation)
 - [Frontend Demo](#frontend-demo)
 - [Testing](#testing)
@@ -39,6 +40,8 @@ This project demonstrates a **multi-tenant travel platform** where:
 ✅ **Policy engine** for tenant-specific rules (preferred airlines, price caps, star ratings)  
 ✅ **Distinct UX per tenant** (cards vs. table, price emphasis, policy warnings)  
 ✅ **Vertical toggling** (SaverTrips has hotels disabled)  
+✅ **Visual page editor** (Craft.js) for customizing page layouts  
+✅ **SQLite persistence** for page configs and themes (zero-config)  
 ✅ **Clean layering** (platform → domain → providers → API)  
 ✅ **Type-safe** with TypeScript throughout  
 ✅ **Tested** core logic (policies, tenant registry)
@@ -79,7 +82,7 @@ DUFFEL_KEY_GLOBEX_SYSTEMS=duffel_test__YOUR_KEY_HERE
 EOF
 ```
 
-**Location:** The `.env` file must be at `/Users/ronchistik/Sites/odynn/.env` (project root, same level as `package.json`)
+**Location:** The `.env` file should be in the project root (same level as `package.json`)
 
 **Note:** The actual Duffel API keys are provided in the assignment email. Copy them from there.
 
@@ -113,22 +116,22 @@ This platform uses a **modular monolith** architecture with strict layer separat
 │           Frontend (React)               │
 │  - Tenant picker                         │
 │  - Dynamic UX (cards/table)              │
-│  - Policy warnings                       │
+│  - Visual page editor (Craft.js)         │
 └──────────────┬──────────────────────────┘
                │ HTTP
 ┌──────────────▼──────────────────────────┐
 │          API Layer (Fastify)             │
 │  - Tenant context middleware             │
 │  - Routes (config, flights, stays)       │
-│  - Request validation (Zod)              │
-└──────────────┬──────────────────────────┘
-               │
-┌──────────────▼──────────────────────────┐
-│         Domain Layer                     │
-│  - FlightsService                        │
-│  - StaysService                          │
-│  - Business logic + orchestration        │
-└──────────────┬──────────────────────────┘
+│  - Page config & theme routes            │
+└──────────────┬───────────────┬──────────┘
+               │               │
+┌──────────────▼───────┐ ┌─────▼──────────┐
+│    Domain Layer      │ │    Database    │
+│  - FlightsService    │ │    (SQLite)    │
+│  - StaysService      │ │  - Page configs│
+│  - Business logic    │ │  - Themes      │
+└──────────────┬───────┘ └────────────────┘
                │
 ┌──────────────▼──────────────────────────┐
 │        Platform Layer                    │
@@ -148,7 +151,7 @@ This platform uses a **modular monolith** architecture with strict layer separat
 ### Directory Structure
 
 ```
-odynn/
+multi-tenancy-example/
 ├─ apps/
 │  ├─ api/                    # Backend (Fastify + TypeScript)
 │  │  ├─ src/
@@ -156,19 +159,22 @@ odynn/
 │  │  │  ├─ domain/           # Business logic (flights, stays)
 │  │  │  ├─ providers/        # Duffel integration
 │  │  │  ├─ api/              # HTTP routes + middleware
+│  │  │  ├─ database/         # SQLite storage (page configs, themes)
 │  │  │  └─ shared/           # Utilities (env, logger, http)
+│  │  ├─ data/                # SQLite database file (auto-created)
 │  │  └─ test/                # Tests
 │  │
 │  └─ web/                    # Frontend (React + Vite)
 │     ├─ src/
 │     │  ├─ components/       # Layout, TenantPicker, Flight/Stay cards/tables
-│     │  ├─ pages/            # FlightsPage, StaysPage, TenantShell
+│     │  ├─ pages/            # FlightsPage, StaysPage, PageEditor
 │     │  ├─ api.ts            # API client
 │     │  └─ tenantUx.ts       # Theming utilities
 │
+├─ docs/                      # Documentation
 ├─ package.json               # Workspace root
 ├─ pnpm-workspace.yaml
-├─ .env.example
+├─ .env                       # Environment variables (Duffel API keys)
 └─ README.md
 ```
 
@@ -513,7 +519,53 @@ policies: [
 
 ---
 
+## Database Storage
+
+Page configurations and theme overrides are persisted in **SQLite** for zero-config setup.
+
+### How It Works
+
+- **Database file:** `apps/api/data/configs.db` (auto-created on first run)
+- **No setup required:** Just run `pnpm dev` — tables are created automatically
+- **Two tables:**
+  - `page_configs` — Stores Craft.js page layouts per tenant/page
+  - `tenant_themes` — Stores theme overrides per tenant
+
+### Why SQLite?
+
+- ✅ **Zero config** — No Docker, no cloud database, no env vars needed
+- ✅ **File-based** — Easy to inspect, reset, or backup
+- ✅ **Fast** — Synchronous reads, no connection pooling needed
+- ✅ **Portable** — Reviewer just clones and runs
+
+### Inspecting the Database
+
+**TablePlus** (recommended):
+1. Create new connection → Select **SQLite**
+2. Database path: `apps/api/data/configs.db`
+3. Connect
+
+**Command line:**
+```bash
+sqlite3 apps/api/data/configs.db
+.tables                    # List tables
+SELECT * FROM page_configs;
+SELECT * FROM tenant_themes;
+```
+
+---
+
 ## API Documentation
+
+### Swagger UI
+
+Interactive API documentation is available at:
+
+```
+http://localhost:5050/docs
+```
+
+Use Swagger to explore all endpoints, view request/response schemas, and test API calls directly in the browser.
 
 ### Base URL
 
@@ -529,9 +581,25 @@ All API requests require the `X-Tenant-Id` header:
 curl -H "X-Tenant-Id: saver-trips" http://localhost:5050/api/config
 ```
 
-### Endpoints
+### All Endpoints
 
-#### 1. Get Tenant Config
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/config` | GET | Get tenant configuration |
+| `/api/flights/search` | POST | Search flights |
+| `/api/stays/search` | POST | Search hotels |
+| `/api/page-config/:pageId` | GET | Get page layout config |
+| `/api/page-config/:pageId` | PUT | Save page layout config |
+| `/api/page-config/:pageId` | DELETE | Delete page layout config |
+| `/api/theme` | GET | Get tenant theme overrides |
+| `/api/theme` | PUT | Save tenant theme overrides |
+| `/api/theme` | DELETE | Reset theme to defaults |
+| `/api/reset` | POST | Reset all configs for tenant |
+| `/api/reset-all` | POST | Reset all configs (all tenants) |
+
+### Endpoint Details
+
+#### GET /api/config
 
 ```http
 GET /api/config
@@ -565,7 +633,7 @@ Headers:
 
 ---
 
-#### 2. Search Flights
+#### POST /api/flights/search
 
 ```http
 POST /api/flights/search
@@ -618,7 +686,7 @@ Body:
 
 ---
 
-#### 3. Search Hotels
+#### POST /api/stays/search
 
 ```http
 POST /api/stays/search

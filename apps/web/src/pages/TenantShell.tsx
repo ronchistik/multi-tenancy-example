@@ -22,19 +22,33 @@ export function TenantShell({ tenantId }: TenantShellProps) {
   const [config, setConfig] = useState<TenantConfig | null>(null);
   const [locations, setLocations] = useState<Location[]>([]);
   const [activeTab, setActiveTab] = useState<'flights' | 'stays'>('flights');
+  
+  // Saved configs from database
+  const [savedFlightsConfig, setSavedFlightsConfig] = useState<any>(null);
+  const [tenantTheme, setTenantTheme] = useState<any>(null);
 
   const apiClient = createApiClient(tenantId);
 
+  // Load saved configs from database
   useEffect(() => {
-    loadConfig();
+    // Reset on tenant change
+    setSavedFlightsConfig(null);
+    setTenantTheme(null);
+    
+    // Load from database
+    Promise.all([
+      loadPageConfig(tenantId, 'flights-page'),
+      loadTenantTheme(tenantId),
+    ]).then(([pageConfig, theme]) => {
+      setSavedFlightsConfig(pageConfig);
+      setTenantTheme(theme);
+    }).catch(console.error);
   }, [tenantId]);
 
-  // Load saved page config - must be called unconditionally (before any returns)
-  const savedFlightsConfig = loadPageConfig(tenantId, 'flights-page');
-  
-  // Load tenant-level theme overrides (applies to ALL pages for this tenant)
-  const tenantTheme = loadTenantTheme(tenantId);
-  
+  useEffect(() => {
+    loadConfigFromApi();
+  }, [tenantId]);
+
   // Apply tenant-level theme overrides to config
   // Must be called unconditionally (React hooks rule)
   const effectiveConfig = useMemo(() => {
@@ -45,7 +59,7 @@ export function TenantShell({ tenantId }: TenantShellProps) {
     return config;
   }, [config, tenantTheme]);
 
-  const loadConfig = async () => {
+  const loadConfigFromApi = async () => {
     setLoading(true);
     setError(null);
 
@@ -78,11 +92,12 @@ export function TenantShell({ tenantId }: TenantShellProps) {
 
   const flightsEnabled = config.enabledVerticals.includes('flights');
   const staysEnabled = config.enabledVerticals.includes('stays');
+  // Use saved config from database, or fall back to tenant default
   const flightsPageConfig = savedFlightsConfig || config.pages?.flights;
 
   // Hide FeatureCards in Layout when PageRenderer will render them
   const usePageRenderer = activeTab === 'flights' && flightsEnabled && flightsPageConfig;
-  
+
   return (
     <Layout config={effectiveConfig} hideFeatureCards={!!usePageRenderer}>
       {/* Vertical tabs */}
@@ -127,10 +142,10 @@ export function TenantShell({ tenantId }: TenantShellProps) {
             onFlightSearch={(req) => apiClient.searchFlights(req)}
           />
         ) : (
-          <FlightsPage
+        <FlightsPage
             config={effectiveConfig}
-            onSearch={(req) => apiClient.searchFlights(req)}
-          />
+          onSearch={(req) => apiClient.searchFlights(req)}
+        />
         )
       )}
 

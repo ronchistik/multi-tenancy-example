@@ -530,7 +530,7 @@ function SettingsPanel({ onSave, themeOverrides }: { onSave: (serializedState: s
   const handleSave = () => {
     const serialized = query.serialize();
     onSave(serialized, themeOverrides);
-    alert('Page saved! (In production, this would save to the backend)');
+    // Alert handled by parent (App.tsx) with proper success/error feedback
   };
 
   return (

@@ -40,8 +40,8 @@ export function Layout({ config, children, hideFeatureCards = false }: LayoutPro
           alignItems: 'center',
         } : {
           padding: isDense ? '12px 20px' : '28px 20px',
-          background: config.uxHints.primaryColor,
-          boxShadow: isDense ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+        background: config.uxHints.primaryColor,
+        boxShadow: isDense ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
         }),
       }}>
         {/* Background image */}
@@ -78,28 +78,28 @@ export function Layout({ config, children, hideFeatureCards = false }: LayoutPro
           position: 'relative', 
           zIndex: 1, 
           padding: hasHeroImage ? '40px 20px' : '0',
-        }}>
-          <h1 style={{
+      }}>
+        <h1 style={{
             fontSize: hasHeroImage ? '42px' : tokens.typography.headingSize,
-            fontWeight: tokens.typography.headingWeight,
+          fontWeight: tokens.typography.headingWeight,
             marginBottom: hasHeroImage ? '12px' : '4px',
             letterSpacing: config.uxHints.priceEmphasis === 'low' ? '4px' : '1px',
-            textTransform: config.uxHints.priceEmphasis === 'low' ? 'uppercase' : 'none',
+          textTransform: config.uxHints.priceEmphasis === 'low' ? 'uppercase' : 'none',
             textShadow: hasHeroImage ? '0 2px 20px rgba(0,0,0,0.5)' : 'none',
-          }}>
-            {config.uxHints.brandName}
-          </h1>
-          <p style={{
+        }}>
+          {config.uxHints.brandName}
+        </h1>
+        <p style={{
             fontSize: hasHeroImage ? '18px' : tokens.typography.bodySize,
-            opacity: 0.9,
+          opacity: 0.9,
             display: isDense && !hasHeroImage ? 'none' : 'block',
             textShadow: hasHeroImage ? '0 1px 10px rgba(0,0,0,0.5)' : 'none',
             maxWidth: '600px',
             margin: '0 auto',
             fontWeight: 300,
-          }}>
-            {config.uxHints.tagline || 'Multi-Tenant Travel Platform Demo'}
-          </p>
+        }}>
+          {config.uxHints.tagline || 'Multi-Tenant Travel Platform Demo'}
+        </p>
         </div>
       </header>
 

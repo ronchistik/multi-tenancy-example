@@ -11,6 +11,8 @@ import { errorHandlerPlugin } from './api/plugins/errorHandler.plugin.js';
 import { configRoute } from './api/routes/config.route.js';
 import { flightsRoute } from './api/routes/flights.route.js';
 import { staysRoute } from './api/routes/stays.route.js';
+import { pageConfigRoute } from './api/routes/pageConfig.route.js';
+import { initSchema, closeDb } from './database/db.js';
 import { logger } from './shared/logger.js';
 
 export async function createServer() {
@@ -39,6 +41,9 @@ export async function createServer() {
         { name: 'Config', description: 'Tenant configuration endpoints' },
         { name: 'Flights', description: 'Flight search operations' },
         { name: 'Stays', description: 'Hotel/accommodation search operations' },
+        { name: 'Page Config', description: 'Page layout configuration (stored in SQLite)' },
+        { name: 'Theme', description: 'Tenant theme overrides (stored in SQLite)' },
+        { name: 'Reset', description: 'Reset operations' },
       ],
       components: {
         securitySchemes: {
@@ -65,6 +70,9 @@ export async function createServer() {
   // Register error handler
   await fastify.register(errorHandlerPlugin);
 
+  // Initialize SQLite database (auto-creates data/configs.db)
+  initSchema();
+
   // Health check (no tenant required)
   fastify.get('/health', async () => ({ status: 'ok' }));
 
@@ -77,6 +85,12 @@ export async function createServer() {
     await instance.register(configRoute, { prefix: '/api' });
     await instance.register(flightsRoute, { prefix: '/api' });
     await instance.register(staysRoute, { prefix: '/api' });
+    await instance.register(pageConfigRoute, { prefix: '/api' });
+  });
+
+  // Graceful shutdown
+  fastify.addHook('onClose', () => {
+    closeDb();
   });
 
   return fastify;

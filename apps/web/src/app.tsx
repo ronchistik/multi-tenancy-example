@@ -17,16 +17,31 @@ export function App() {
   const [tenantName, setTenantName] = useState<string>('');
   const [reloadKey, setReloadKey] = useState<number>(0);
   const [editorKey, setEditorKey] = useState<number>(0);
+  const [savedPageConfig, setSavedPageConfig] = useState<any>(null);
+  const [savedTheme, setSavedTheme] = useState<any>(null);
+  const [isLoadingConfigs, setIsLoadingConfigs] = useState<boolean>(false);
 
   // ALL HOOKS MUST BE BEFORE ANY CONDITIONAL RETURNS
   React.useEffect(() => {
     if (showBuilder) {
-      // Load config and locations for page builder
-      createApiClient(tenantId).getConfig().then((res) => {
-        setConfig(res);
+      setIsLoadingConfigs(true);
+      
+      // Load tenant config, saved page config, and theme in parallel
+      Promise.all([
+        createApiClient(tenantId).getConfig(),
+        loadPageConfig(tenantId, 'flights-page'),
+        loadTenantTheme(tenantId),
+      ]).then(([tenantConfig, pageConfig, theme]) => {
+        setConfig(tenantConfig);
+        setSavedPageConfig(pageConfig);
+        setSavedTheme(theme);
+        setIsLoadingConfigs(false);
+      }).catch((err) => {
+        console.error('Failed to load configs:', err);
+        setIsLoadingConfigs(false);
       });
     }
-  }, [showBuilder, tenantId]);
+  }, [showBuilder, tenantId, editorKey]);
   
   React.useEffect(() => {
     createApiClient(tenantId).getConfig().then((res) => {
@@ -35,36 +50,40 @@ export function App() {
   }, [tenantId]);
 
   // Builder mode
-  if (showBuilder && config) {
+  if (showBuilder && config && !isLoadingConfigs) {
     const apiClient = createApiClient(tenantId);
     
     // Use new PageEditor if flights page config exists, otherwise use old PageBuilder
     if (config.tenant.pages?.flights) {
-      // Try to load saved config from localStorage first
-      const savedConfig = loadPageConfig(tenantId, 'flights-page');
-      const pageConfig = savedConfig || config.tenant.pages.flights;
-      // Load existing tenant theme
-      const existingTheme = loadTenantTheme(tenantId);
+      // Use saved config from database/localStorage, or fall back to tenant default
+      const pageConfig = savedPageConfig || config.tenant.pages.flights;
       
       return (
         <PageEditor
           key={`editor-${tenantId}-${editorKey}`}
           pageConfig={pageConfig}
           config={config.tenant}
-          initialThemeOverrides={existingTheme || undefined}
-          onSave={(serializedState, themeOverrides) => {
-            // Save page layout (without theme - theme is saved separately at tenant level)
-            savePageConfig(tenantId, 'flights-page', serializedState);
-            // Save theme at tenant level (applies to ALL pages for this tenant)
-            if (themeOverrides && Object.keys(themeOverrides).length > 0) {
-              saveTenantTheme(tenantId, themeOverrides);
+          initialThemeOverrides={savedTheme || undefined}
+          onSave={async (serializedState, themeOverrides) => {
+            try {
+              // Save page layout to database
+              await savePageConfig(tenantId, 'flights-page', serializedState);
+              // Save theme at tenant level (applies to ALL pages for this tenant)
+              if (themeOverrides && Object.keys(themeOverrides).length > 0) {
+                await saveTenantTheme(tenantId, themeOverrides);
+              }
+              console.log('✅ Saved to database!', { serializedState, themeOverrides });
+              alert('✅ Saved to database successfully!\n\nTheme changes apply to all pages for this tenant.');
+            } catch (err) {
+              console.error('❌ Save failed:', err);
+              alert('❌ Failed to save to database.\n\nPlease check that the API server is running.');
             }
-            console.log('✅ Saved!', { serializedState, themeOverrides });
-            alert('✅ Page saved successfully!\n\nTheme changes apply to all pages for this tenant.');
           }}
           onClose={() => {
             setShowBuilder(false);
             setConfig(null); // Clear config to force fresh load next time
+            setSavedPageConfig(null);
+            setSavedTheme(null);
             setReloadKey(prev => prev + 1); // Force reload of TenantShell
           }}
         />
