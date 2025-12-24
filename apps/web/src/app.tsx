@@ -16,6 +16,7 @@ export function App() {
   const [config, setConfig] = useState<any>(null);
   const [tenantName, setTenantName] = useState<string>('');
   const [reloadKey, setReloadKey] = useState<number>(0);
+  const [editorKey, setEditorKey] = useState<number>(0);
 
   // ALL HOOKS MUST BE BEFORE ANY CONDITIONAL RETURNS
   React.useEffect(() => {
@@ -47,6 +48,7 @@ export function App() {
       
       return (
         <PageEditor
+          key={`editor-${tenantId}-${editorKey}`}
           pageConfig={pageConfig}
           config={config.tenant}
           initialThemeOverrides={existingTheme || undefined}
@@ -62,6 +64,7 @@ export function App() {
           }}
           onClose={() => {
             setShowBuilder(false);
+            setConfig(null); // Clear config to force fresh load next time
             setReloadKey(prev => prev + 1); // Force reload of TenantShell
           }}
         />
@@ -115,7 +118,10 @@ export function App() {
         currentTenant={tenantId}
         tenantName={tenantName}
         onTenantChange={setTenantId}
-        onNavigateToBuilder={() => setShowBuilder(true)}
+        onNavigateToBuilder={() => {
+          setEditorKey(prev => prev + 1); // Force fresh editor each time
+          setShowBuilder(true);
+        }}
       />
       <TenantShell key={`${tenantId}-${reloadKey}`} tenantId={tenantId} />
     </div>

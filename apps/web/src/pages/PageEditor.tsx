@@ -145,13 +145,21 @@ export function PageEditor({ pageConfig, config: baseConfig, initialThemeOverrid
     hasSearched,
   };
 
-  // Parse the serialized state and inject FeatureCards if tenant has them (only on initial load)
-  const initialSerializedState = useRef<any>(null);
+  // Parse the serialized state and inject FeatureCards if tenant has them
+  // Use a stable key based on the original pageConfig to prevent re-injection during editing
+  const pageConfigKey = useRef(pageConfig.serializedState);
+  const injectedState = useRef<any>(null);
+  
+  // Reset cache if pageConfig changes (different page/tenant)
+  if (pageConfigKey.current !== pageConfig.serializedState) {
+    pageConfigKey.current = pageConfig.serializedState;
+    injectedState.current = null;
+  }
   
   const serializedState = useMemo(() => {
-    // Only compute once on initial load
-    if (initialSerializedState.current !== null) {
-      return initialSerializedState.current;
+    // Return cached state if already computed for this pageConfig
+    if (injectedState.current !== null) {
+      return injectedState.current;
     }
     
     const state = JSON.parse(pageConfig.serializedState);
@@ -187,10 +195,10 @@ export function PageEditor({ pageConfig, config: baseConfig, initialThemeOverrid
       }
     }
     
-    initialSerializedState.current = state;
+    injectedState.current = state;
     return state;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageConfig.serializedState]); // Only depend on pageConfig, not config (which changes during editing)
+  }, [pageConfig.serializedState, baseConfig.id]); // Reset when page or tenant changes
 
   return (
     <RuntimePropsContext.Provider value={runtimeProps}>
