@@ -113,10 +113,11 @@ This platform uses a **modular monolith** architecture with strict layer separat
 
 ```
 ┌─────────────────────────────────────────┐
-│           Frontend (React)               │
+│      Frontend (React + Tailwind)        │
 │  - Tenant picker                         │
 │  - Dynamic UX (cards/table)              │
 │  - Visual page editor (Craft.js)         │
+│  - Tailwind utilities + design tokens    │
 └──────────────┬──────────────────────────┘
                │ HTTP
 ┌──────────────▼──────────────────────────┐
@@ -164,7 +165,7 @@ multi-tenancy-example/
 │  │  ├─ data/                # SQLite database file (auto-created)
 │  │  └─ test/                # Tests
 │  │
-│  └─ web/                    # Frontend (React + Vite)
+│  └─ web/                    # Frontend (React + Vite + Tailwind CSS)
 │     ├─ src/
 │     │  ├─ components/       # Layout, TenantPicker, Flight/Stay cards/tables
 │     │  ├─ pages/            # FlightsPage, StaysPage, PageEditor

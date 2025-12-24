@@ -94,7 +94,7 @@ interface PolicyRule {
 
 ### Design Tokens
 
-Each tenant has a complete design system:
+Each tenant has a complete design system defined as **design tokens** that work alongside **Tailwind CSS utility classes**:
 
 ```typescript
 interface DesignTokens {
@@ -105,6 +105,33 @@ interface DesignTokens {
   shadows: { card, cardHover, form };
 }
 ```
+
+**Styling Architecture:**
+
+The platform uses a **hybrid approach** combining Tailwind CSS utilities with tenant-specific design tokens:
+
+- **Tailwind for layout & common styles:** Responsive grids, flexbox, spacing, typography scale
+  ```jsx
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5">
+  ```
+
+- **Design tokens for tenant customization:** Brand colors, custom shadows, specific sizes
+  ```jsx
+  <button 
+    className="px-4 py-2 rounded transition-all"
+    style={{ 
+      background: tokens.colors.primary,
+      boxShadow: tokens.shadows.card 
+    }}
+  >
+  ```
+
+**Why this approach?**
+
+✅ **Best of both worlds:** Tailwind's responsive utilities + tenant brand consistency  
+✅ **Performance:** Tailwind utilities are purged/optimized, tokens applied where needed  
+✅ **Developer experience:** Familiar Tailwind patterns + type-safe token access  
+✅ **Flexibility:** Easy to add tenant-specific overrides without bloating Tailwind config
 
 ### Tenant Evolution Strategy
 
@@ -201,7 +228,12 @@ The API returns a config object with `uxHints`:
     "uxHints": {
       "layout": "cards",
       "primaryColor": "#10B981",
-      "priceEmphasis": "high"
+      "priceEmphasis": "high",
+      "designTokens": {
+        "colors": { "primary": "#10B981", ... },
+        "typography": { "headingSize": "32px", ... },
+        "spacing": { "cardPadding": "24px", ... }
+      }
     }
   }
 }
@@ -212,6 +244,34 @@ Frontend interprets these:
 - `layout` → Choose `FlightCards` vs `FlightTable` component
 - `priceEmphasis` → Size of price display
 - `showPolicyCompliance` → Show/hide policy warnings
+- `designTokens` → Applied via inline styles for tenant-specific values
+
+### Styling Implementation
+
+**Tailwind CSS v4** provides the foundation with utility classes:
+
+```jsx
+// Responsive layout, common spacing - pure Tailwind
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5">
+  <div className="flex flex-col gap-2">
+    <label className="text-sm font-medium">From</label>
+```
+
+**Design tokens** handle tenant-specific customization:
+
+```jsx
+// Brand colors, custom dimensions - design tokens
+<button 
+  className="px-4 py-2 rounded-lg border-none cursor-pointer transition-all"
+  style={{ 
+    background: config.uxHints.primaryColor,
+    fontSize: tokens.typography.buttonSize,
+    boxShadow: tokens.shadows.card
+  }}
+>
+```
+
+This **hybrid approach** keeps Tailwind for structure/responsiveness while maintaining per-tenant branding flexibility.
 
 ### Visual Page Editor
 

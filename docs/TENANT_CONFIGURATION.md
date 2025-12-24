@@ -196,5 +196,5 @@ Each tenant has customizable design tokens for:
 - **Borders**: Card radius, input radius, button radius, border widths
 - **Shadows**: Card shadow, card hover shadow, form shadow
 
-These tokens are returned via the `/api/config` endpoint and used by the frontend to render tenant-specific UI.
+These tokens are returned via the `/api/config` endpoint and used by the frontend alongside **Tailwind CSS** to render tenant-specific UI. Tailwind provides responsive layout utilities while design tokens handle tenant-specific branding (colors, custom dimensions, shadows).
 
