@@ -182,3 +182,103 @@ export function resetAll(): void {
   db.prepare(`DELETE FROM page_configs`).run();
   db.prepare(`DELETE FROM tenant_themes`).run();
 }
+
+// ============================================================================
+// Error Logs
+// ============================================================================
+
+export interface ErrorLog {
+  id: number;
+  tenant_id: string | null;
+  request_id: string | null;
+  error_code: string;
+  error_message: string;
+  http_status: number | null;
+  request_method: string | null;
+  request_path: string | null;
+  request_body: string | null;
+  stack_trace: string | null;
+  created_at: string;
+}
+
+export interface LogErrorParams {
+  tenantId?: string;
+  requestId?: string;
+  errorCode: string;
+  errorMessage: string;
+  httpStatus?: number;
+  requestMethod?: string;
+  requestPath?: string;
+  requestBody?: unknown;
+  stackTrace?: string;
+}
+
+/**
+ * Log an error to the database
+ */
+export function logError(params: LogErrorParams): ErrorLog {
+  const db = getDb();
+  const now = new Date().toISOString();
+  
+  const result = db.prepare(`
+    INSERT INTO error_logs (
+      tenant_id, request_id, error_code, error_message, 
+      http_status, request_method, request_path, request_body, 
+      stack_trace, created_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    params.tenantId || null,
+    params.requestId || null,
+    params.errorCode,
+    params.errorMessage,
+    params.httpStatus || null,
+    params.requestMethod || null,
+    params.requestPath || null,
+    params.requestBody ? JSON.stringify(params.requestBody) : null,
+    params.stackTrace || null,
+    now
+  );
+  
+  return {
+    id: result.lastInsertRowid as number,
+    tenant_id: params.tenantId || null,
+    request_id: params.requestId || null,
+    error_code: params.errorCode,
+    error_message: params.errorMessage,
+    http_status: params.httpStatus || null,
+    request_method: params.requestMethod || null,
+    request_path: params.requestPath || null,
+    request_body: params.requestBody ? JSON.stringify(params.requestBody) : null,
+    stack_trace: params.stackTrace || null,
+    created_at: now,
+  };
+}
+
+/**
+ * Get recent errors for a tenant
+ */
+export function getErrorsForTenant(
+  tenantId: string,
+  limit = 50
+): ErrorLog[] {
+  const db = getDb();
+  return db.prepare(`
+    SELECT * FROM error_logs 
+    WHERE tenant_id = ?
+    ORDER BY created_at DESC
+    LIMIT ?
+  `).all(tenantId, limit) as ErrorLog[];
+}
+
+/**
+ * Get all recent errors
+ */
+export function getRecentErrors(limit = 100): ErrorLog[] {
+  const db = getDb();
+  return db.prepare(`
+    SELECT * FROM error_logs 
+    ORDER BY created_at DESC
+    LIMIT ?
+  `).all(limit) as ErrorLog[];
+}

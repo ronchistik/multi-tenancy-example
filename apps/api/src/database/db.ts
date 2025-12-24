@@ -68,6 +68,25 @@ export function initSchema(): void {
       theme_overrides TEXT NOT NULL,
       updated_at TEXT DEFAULT (datetime('now'))
     );
+    
+    -- Error logs table for audit trail
+    CREATE TABLE IF NOT EXISTS error_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      tenant_id TEXT,
+      request_id TEXT,
+      error_code TEXT NOT NULL,
+      error_message TEXT NOT NULL,
+      http_status INTEGER,
+      request_method TEXT,
+      request_path TEXT,
+      request_body TEXT,
+      stack_trace TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+    
+    -- Index for querying errors by tenant
+    CREATE INDEX IF NOT EXISTS idx_error_logs_tenant 
+      ON error_logs(tenant_id, created_at DESC);
   `);
   
   console.log('✅ Database schema initialized');

@@ -7,7 +7,6 @@ import cors from '@fastify/cors';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { tenantContextPlugin } from './api/plugins/tenantContext.plugin.js';
-import { errorHandlerPlugin } from './api/plugins/errorHandler.plugin.js';
 import { configRoute } from './api/routes/config.route.js';
 import { flightsRoute } from './api/routes/flights.route.js';
 import { staysRoute } from './api/routes/stays.route.js';
@@ -67,8 +66,37 @@ export async function createServer() {
     },
   });
 
-  // Register error handler
-  await fastify.register(errorHandlerPlugin);
+  // Global error handler (inline, not plugin)
+  fastify.setErrorHandler(async (error, request, reply) => {
+    const tenantId = request.tenantContext?.tenant?.id;
+    logger.info('ERROR HANDLER CALLED', { error: error.message, tenantId });
+    
+    // Persist to DB
+    const { logError } = await import('./database/configStore.js');
+    try {
+      logError({
+        tenantId,
+        requestId: request.id,
+        errorCode: (error as any).code || 'UNKNOWN',
+        errorMessage: error.message,
+        httpStatus: (error as any).statusCode || 500,
+        requestMethod: request.method,
+        requestPath: request.url,
+        stackTrace: error.stack,
+      });
+    } catch (e) {
+      logger.error('Failed to log error to DB', { error: (e as Error).message });
+    }
+    
+    // Send response
+    const statusCode = (error as any).statusCode || 500;
+    return reply.status(statusCode).send({
+      statusCode,
+      error: error.name,
+      message: error.message,
+      code: (error as any).code,
+    });
+  });
 
   // Initialize SQLite database (auto-creates data/configs.db)
   initSchema();
@@ -86,6 +114,32 @@ export async function createServer() {
     const { resetAll } = await import('./database/configStore.js');
     resetAll();
     return { success: true, message: 'All configs reset for all tenants' };
+  });
+
+  // Global request logging (at root level to catch all requests)
+  fastify.addHook('onRequest', (request, reply, done) => {
+    (request as any).startTime = Date.now();
+    done();
+  });
+  
+  fastify.addHook('onResponse', (request, reply, done) => {
+    // Skip OPTIONS (CORS preflight) - they don't have tenant context
+    if (request.method === 'OPTIONS') {
+      done();
+      return;
+    }
+    
+    const tenantId = request.tenantContext?.tenant?.id;
+    const durationMs = Date.now() - ((request as any).startTime || Date.now());
+    
+    // Log all tenant-aware API requests
+    if (request.url.startsWith('/api/') && !request.url.includes('/docs')) {
+      logger.info(`${request.method} ${request.url} ${reply.statusCode} ${durationMs}ms`, {
+        tenantId,
+        requestId: request.id,
+      });
+    }
+    done();
   });
 
   // Register tenant-aware routes

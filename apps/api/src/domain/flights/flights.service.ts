@@ -83,21 +83,21 @@ export class FlightsService {
         const lastSegment = slice.segments[slice.segments.length - 1];
         
         return {
-          id: slice.id,
-          origin: {
-            code: slice.origin.iata_code,
-            name: slice.origin.name,
-            city: slice.origin.city_name,
-          },
-          destination: {
-            code: slice.destination.iata_code,
-            name: slice.destination.name,
-            city: slice.destination.city_name,
-          },
+        id: slice.id,
+        origin: {
+          code: slice.origin.iata_code,
+          name: slice.origin.name,
+          city: slice.origin.city_name,
+        },
+        destination: {
+          code: slice.destination.iata_code,
+          name: slice.destination.name,
+          city: slice.destination.city_name,
+        },
           departureTime: firstSegment?.departing_at || slice.departure_time,
           arrivalTime: lastSegment?.arriving_at || slice.arrival_time,
-          duration: slice.duration,
-          segments: slice.segments.map((seg) => ({
+        duration: slice.duration,
+        segments: slice.segments.map((seg) => ({
           id: seg.id,
           origin: seg.origin.iata_code,
           destination: seg.destination.iata_code,
