@@ -18,18 +18,24 @@ Get the Odynn multi-tenant platform running in **3 minutes**.
 pnpm install
 
 # 2. Create .env file in project root
-# Replace with actual Duffel keys from the assignment email
-cat > .env << 'EOF'
+cp .env.example .env
+# Then edit .env with actual Duffel keys from the assignment email
+
+# 3. Start both API and frontend
+pnpm dev
+```
+
+> **Note:** SQLite database auto-creates at `apps/api/data/configs.db` on first run. No database setup required.
+
+### .env file format
+
+```env
 API_PORT=5050
 API_HOST=0.0.0.0
 NODE_ENV=development
 DUFFEL_KEY_SAVER_TRIPS=duffel_test__YOUR_KEY_HERE
 DUFFEL_KEY_APEX_RESERVE=duffel_test__YOUR_KEY_HERE
 DUFFEL_KEY_GLOBEX_SYSTEMS=duffel_test__YOUR_KEY_HERE
-EOF
-
-# 3. Start both API and frontend
-pnpm dev
 ```
 
 ---
@@ -116,14 +122,15 @@ pnpm test
 ## Project Structure
 
 ```
-odynn/
+multi-tenancy-example/
 ├─ apps/
-│  ├─ api/           # Backend (Fastify)
-│  └─ web/           # Frontend (React)
-├─ README.md         # Full documentation
-├─ DESIGN.md         # Architecture deep-dive
-├─ PROMPTS.md        # AI tool usage
-└─ SUBMISSION.md     # Submission checklist
+│  ├─ api/              # Backend (Fastify + SQLite)
+│  │  └─ data/          # SQLite database (auto-created)
+│  └─ web/              # Frontend (React + Craft.js)
+├─ docs/                # Documentation
+│  ├─ DESIGN.md         # Architecture deep-dive
+│  └─ QUICKSTART.md     # This file
+└─ README.md            # Full documentation
 ```
 
 ---
@@ -150,12 +157,16 @@ pnpm type-check
 
 ## Next Steps
 
-1. Read [README.md](./README.md) for full documentation
+1. Read [README.md](../README.md) for full documentation
 2. Read [DESIGN.md](./DESIGN.md) for architecture details
 3. Explore the codebase:
    - `apps/api/src/platform/tenant/tenant.registry.ts` - Tenant configs
    - `apps/api/src/platform/policies/` - Policy engine
    - `apps/web/src/components/` - UX components
+4. Inspect the database:
+   ```bash
+   sqlite3 apps/api/data/configs.db ".tables"
+   ```
 
 ---
 
