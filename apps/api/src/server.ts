@@ -76,6 +76,18 @@ export async function createServer() {
   // Health check (no tenant required)
   fastify.get('/health', async () => ({ status: 'ok' }));
 
+  // Reset-all endpoint (no tenant required)
+  fastify.post('/api/reset-all', {
+    schema: {
+      description: 'Reset all page configs and themes for ALL tenants',
+      tags: ['Reset']
+    }
+  }, async () => {
+    const { resetAll } = await import('./database/configStore.js');
+    resetAll();
+    return { success: true, message: 'All configs reset for all tenants' };
+  });
+
   // Register tenant-aware routes
   await fastify.register(async (instance) => {
     // Tenant context middleware

@@ -189,8 +189,17 @@ export function FlightSearchForm({
             <input
               type="date"
               value={formData.departureDate}
-              onChange={(e) => setFormData({ ...formData, departureDate: e.target.value })}
               min={getTodayDate()}
+              max={formData.returnDate || undefined}
+              onChange={(e) => {
+                const newDeparture = e.target.value;
+                // If departure is after return, adjust return date
+                if (formData.returnDate && newDeparture > formData.returnDate) {
+                  setFormData({ ...formData, departureDate: newDeparture, returnDate: newDeparture });
+                } else {
+                  setFormData({ ...formData, departureDate: newDeparture });
+                }
+              }}
               required
               style={{
                 padding: tokens.spacing.inputPadding,
@@ -217,8 +226,8 @@ export function FlightSearchForm({
               <input
                 type="date"
                 value={formData.returnDate || ''}
+                min={formData.departureDate || getTodayDate()}
                 onChange={(e) => setFormData({ ...formData, returnDate: e.target.value })}
-                min={getTodayDate()}
                 style={{
                   padding: tokens.spacing.inputPadding,
                   fontSize: tokens.typography.bodySize,

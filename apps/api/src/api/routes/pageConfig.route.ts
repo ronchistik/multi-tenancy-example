@@ -301,19 +301,7 @@ export const pageConfigRoute: FastifyPluginCallback = (fastify, opts, done) => {
     return { success: true, message: `All configs reset for tenant: ${tenantId}` };
   });
   
-  /**
-   * POST /reset-all
-   */
-  fastify.post('/reset-all', {
-    schema: {
-      description: 'Reset all page configs and themes for ALL tenants',
-      tags: ['Reset']
-    }
-  }, () => {
-    configStore.resetAll();
-    
-    return { success: true, message: 'All configs reset for all tenants' };
-  });
+  // Note: /reset-all is registered in server.ts (outside tenant context)
   
   done();
 };

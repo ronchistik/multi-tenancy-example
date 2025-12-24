@@ -107,7 +107,23 @@ export function StaysPage({ config, locations, onSearch }: StaysPageProps) {
             <input
               type="date"
               value={formData.checkInDate}
-              onChange={(e) => setFormData({ ...formData, checkInDate: e.target.value })}
+              min={getMinDate()}
+              max={formData.checkOutDate || undefined}
+              onChange={(e) => {
+                const newCheckIn = e.target.value;
+                // If check-in is after check-out, adjust check-out
+                if (formData.checkOutDate && newCheckIn >= formData.checkOutDate) {
+                  const nextDay = new Date(newCheckIn);
+                  nextDay.setDate(nextDay.getDate() + 1);
+                  setFormData({ 
+                    ...formData, 
+                    checkInDate: newCheckIn, 
+                    checkOutDate: nextDay.toISOString().split('T')[0]! 
+                  });
+                } else {
+                  setFormData({ ...formData, checkInDate: newCheckIn });
+                }
+              }}
               required
               style={{
                 padding: tokens.spacing.inputPadding,
@@ -131,6 +147,7 @@ export function StaysPage({ config, locations, onSearch }: StaysPageProps) {
             <input
               type="date"
               value={formData.checkOutDate}
+              min={formData.checkInDate || getMinDate()}
               onChange={(e) => setFormData({ ...formData, checkOutDate: e.target.value })}
               required
               style={{
@@ -243,6 +260,10 @@ function getDefaultDate(daysFromNow: number): string {
   const date = new Date();
   date.setDate(date.getDate() + daysFromNow);
   return date.toISOString().split('T')[0]!;
+}
+
+function getMinDate(): string {
+  return new Date().toISOString().split('T')[0]!;
 }
 
 const styles = {

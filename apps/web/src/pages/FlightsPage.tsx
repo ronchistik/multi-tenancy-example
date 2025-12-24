@@ -128,7 +128,17 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
             <input
               type="date"
               value={formData.departureDate}
-              onChange={(e) => setFormData({ ...formData, departureDate: e.target.value })}
+              min={getMinDate()}
+              max={formData.returnDate || undefined}
+              onChange={(e) => {
+                const newDeparture = e.target.value;
+                // If departure is after return, adjust return date
+                if (formData.returnDate && newDeparture > formData.returnDate) {
+                  setFormData({ ...formData, departureDate: newDeparture, returnDate: newDeparture });
+                } else {
+                  setFormData({ ...formData, departureDate: newDeparture });
+                }
+              }}
               required
               style={{
                 padding: tokens.spacing.inputPadding,
@@ -151,6 +161,7 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
             <input
               type="date"
               value={formData.returnDate || ''}
+              min={formData.departureDate || getMinDate()}
               onChange={(e) => setFormData({ ...formData, returnDate: e.target.value })}
               style={{
                 padding: tokens.spacing.inputPadding,
@@ -272,6 +283,10 @@ function getDefaultDate(daysFromNow: number): string {
   const date = new Date();
   date.setDate(date.getDate() + daysFromNow);
   return date.toISOString().split('T')[0]!;
+}
+
+function getMinDate(): string {
+  return new Date().toISOString().split('T')[0]!;
 }
 
 const styles = {

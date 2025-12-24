@@ -19,12 +19,17 @@ interface TenantPickerProps {
 }
 
 export function TenantPicker({ currentTenant, tenantName, onTenantChange, onNavigateToBuilder }: TenantPickerProps) {
-  const handleReset = () => {
+  const handleReset = async () => {
     if (confirm('Reset all page and theme customizations for ALL tenants?\n\nThis will restore everything to default.')) {
-      clearAllPageConfigs();
-      clearAllTenantThemes();
-      alert('✅ All customizations cleared! Refreshing page...');
-      window.location.reload();
+      try {
+        await clearAllPageConfigs();
+        await clearAllTenantThemes();
+        alert('✅ All customizations cleared! Refreshing page...');
+        window.location.reload();
+      } catch (err) {
+        console.error('Reset failed:', err);
+        alert('❌ Failed to reset. Make sure the API server is running.');
+      }
     }
   };
 
