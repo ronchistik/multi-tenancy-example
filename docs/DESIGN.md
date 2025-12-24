@@ -282,15 +282,29 @@ Users can customize layouts via Craft.js editor:
 With more time:
 - **Tenant admin UI** — Self-service config updates
 - **Dynamic policies** — Expression-based rules, time-based caps
-- **Redis caching** — 5-min TTL for search results, 90%+ cache hit rate for popular routes
-- **Rate limiting** — Per-tenant request limits to protect API and Duffel quota
-- **Circuit breakers** — Graceful degradation when Duffel is down
-- **Background job queue** — SQS/Bull for heavy searches, async processing
-- **CDN** — CloudFront/Fastly for static assets
-- **Auto-scaling** — Scale instances based on load (AWS ASG, K8s HPA)
-- **Observability & Analytics** — Per-tenant dashboards (search volume, conversion). Prometheus, Posthog, or similar
-- **Error tracking** — Centralized logging (Sentry, Datadog) by tenant and request ID
 - **Performance audits** — Lighthouse, Pagespeed
+
+### AWS Production Deployment
+
+Replace current dev setup with managed AWS services:
+
+| Current (Dev) | AWS Production | Benefits |
+|--------------|----------------|----------|
+| SQLite | **RDS PostgreSQL** | Multi-instance, automatic backups, read replicas |
+| Console logs | **CloudWatch Logs** | Centralized, queryable, alerts |
+| Error logs in SQLite | **CloudWatch Insights** | Query by tenant/error type, dashboards |
+| Single instance | **ECS Fargate + ALB** | Auto-scaling, zero-downtime deploys |
+| No caching | **ElastiCache Redis** | Search result caching, session storage |
+| No CDN | **CloudFront** | Static asset caching, global distribution |
+| No queue | **SQS + Lambda** | Async search processing, handle spikes |
+| Manual monitoring | **CloudWatch Alarms** | CPU/memory alerts, error rate tracking |
+
+**Additional AWS services:**
+- **Secrets Manager** — Duffel API keys (vs .env)
+- **S3** — Page config backups, static assets
+- **Route 53** — Custom domain + health checks
+- **WAF** — DDoS protection, rate limiting
+- **X-Ray** — Distributed tracing across services
 
 ---
 
