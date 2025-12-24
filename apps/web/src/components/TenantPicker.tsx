@@ -34,13 +34,13 @@ export function TenantPicker({ currentTenant, tenantName, onTenantChange, onNavi
   };
 
   return (
-    <div style={styles.container}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <label style={styles.label}>Switch Tenant:</label>
+    <div className="flex items-center justify-between px-5 py-2 bg-white border-b border-gray-200">
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-medium">Switch Tenant:</label>
         <select
           value={currentTenant}
           onChange={(e) => onTenantChange(e.target.value)}
-          style={styles.select}
+          className="px-3 py-1 text-sm border border-gray-300 rounded"
         >
           {TENANTS.map((tenant) => (
             <option key={tenant.id} value={tenant.id}>
@@ -50,63 +50,21 @@ export function TenantPicker({ currentTenant, tenantName, onTenantChange, onNavi
         </select>
       </div>
       
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div className="flex items-center gap-2">
         <button
           onClick={handleReset}
-          style={styles.resetButton}
+          className="px-4 py-2 bg-red-500 text-white border-none rounded text-sm font-semibold cursor-pointer transition-all hover:bg-red-600"
           title="Reset all page customizations for all tenants"
         >
           🔄 Reset All
         </button>
-        <button
-          onClick={onNavigateToBuilder}
-          style={styles.builderButton}
-        >
+      <button
+        onClick={onNavigateToBuilder}
+          className="px-4 py-2 bg-purple-500 text-white border-none rounded text-sm font-semibold cursor-pointer transition-all hover:bg-purple-600"
+      >
           🎨 Edit Page
-        </button>
+      </button>
       </div>
     </div>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  container: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '10px 20px',
-    background: 'white',
-    borderBottom: '1px solid #e0e0e0',
-  },
-  label: {
-    fontSize: '14px',
-    fontWeight: 500,
-  },
-  select: {
-    padding: '6px 12px',
-    fontSize: '14px',
-  },
-  builderButton: {
-    padding: '8px 16px',
-    background: '#8B5CF6',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '14px',
-    fontWeight: 600,
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-  },
-  resetButton: {
-    padding: '8px 16px',
-    background: '#ef4444',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '14px',
-    fontWeight: 600,
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-  },
-};
-

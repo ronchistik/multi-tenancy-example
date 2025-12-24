@@ -20,6 +20,10 @@ export function Container({ children, padding = '0', config }: ContainerProps) {
     <div 
       ref={(ref) => ref && connect(drag(ref))}
       style={{ 
+        maxWidth: '1280px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '100%',
         padding,
         fontFamily: config?.uxHints.designTokens.typography.fontFamily,
       }}

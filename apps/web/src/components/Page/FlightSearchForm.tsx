@@ -91,39 +91,44 @@ export function FlightSearchForm({
   };
 
   return (
-    <div ref={(ref) => ref && connect(drag(ref))}>
+    <div 
+      ref={(ref) => ref && connect(drag(ref))} 
+      style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' }}
+    >
       {title && (
-        <h3 style={{
-          fontSize: tokens.typography.subheadingSize,
-          fontWeight: tokens.typography.subheadingWeight,
-          fontFamily: tokens.typography.fontFamily,
-          color: tokens.colors.textPrimary,
-          marginBottom: '16px',
-        }}>
+        <h3 
+          className="mb-4 text-center md:text-left"
+          style={{
+            fontSize: tokens.typography.subheadingSize,
+            fontWeight: tokens.typography.subheadingWeight,
+            fontFamily: tokens.typography.fontFamily,
+            color: tokens.colors.textPrimary,
+          }}
+        >
           {title}
         </h3>
       )}
 
-      <form onSubmit={handleSubmit} style={{
-        background: tokens.colors.cardBackground,
-        padding: tokens.spacing.formPadding,
-        borderRadius: tokens.borders.cardRadius,
-        marginBottom: '30px',
-        boxShadow: tokens.shadows.form,
-        border: tokens.borders.cardBorderWidth !== '0' 
-          ? tokens.borders.cardBorderWidth + ' solid ' + tokens.colors.border 
-          : 'none',
-      }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: isTableLayout 
-            ? 'repeat(6, 1fr)' 
-            : 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: tokens.spacing.formGap,
-          marginBottom: '16px',
-        }}>
+      <form 
+        onSubmit={handleSubmit} 
+        className="mb-8 mx-auto"
+        style={{
+          maxWidth: '100%',
+          background: tokens.colors.cardBackground,
+          padding: tokens.spacing.formPadding,
+          borderRadius: tokens.borders.cardRadius,
+          boxShadow: tokens.shadows.form,
+          border: tokens.borders.cardBorderWidth !== '0' 
+            ? tokens.borders.cardBorderWidth + ' solid ' + tokens.colors.border 
+            : 'none',
+        }}
+      >
+        <div 
+          className="grid mb-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6"
+          style={{ gap: tokens.spacing.formGap }}
+        >
           {/* Origin */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div className="flex flex-col gap-1">
             <label style={{
               fontSize: tokens.typography.labelSize,
               fontWeight: tokens.typography.labelWeight,
@@ -137,6 +142,7 @@ export function FlightSearchForm({
               placeholder="JFK"
               maxLength={3}
               required
+              className="border"
               style={{
                 padding: tokens.spacing.inputPadding,
                 fontSize: tokens.typography.bodySize,
@@ -144,14 +150,14 @@ export function FlightSearchForm({
                 fontFamily: tokens.typography.fontFamily,
                 background: tokens.colors.inputBackground,
                 color: tokens.colors.textPrimary,
-                border: '1px solid ' + tokens.colors.inputBorder,
+                borderColor: tokens.colors.inputBorder,
                 borderRadius: tokens.borders.inputRadius,
               }}
             />
           </div>
 
           {/* Destination */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div className="flex flex-col gap-1">
             <label style={{
               fontSize: tokens.typography.labelSize,
               fontWeight: tokens.typography.labelWeight,
@@ -165,6 +171,7 @@ export function FlightSearchForm({
               placeholder="LAX"
               maxLength={3}
               required
+              className="border"
               style={{
                 padding: tokens.spacing.inputPadding,
                 fontSize: tokens.typography.bodySize,
@@ -172,14 +179,14 @@ export function FlightSearchForm({
                 fontFamily: tokens.typography.fontFamily,
                 background: tokens.colors.inputBackground,
                 color: tokens.colors.textPrimary,
-                border: '1px solid ' + tokens.colors.inputBorder,
+                borderColor: tokens.colors.inputBorder,
                 borderRadius: tokens.borders.inputRadius,
               }}
             />
           </div>
 
           {/* Departure Date */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div className="flex flex-col gap-1">
             <label style={{
               fontSize: tokens.typography.labelSize,
               fontWeight: tokens.typography.labelWeight,
@@ -193,7 +200,6 @@ export function FlightSearchForm({
               max={formData.returnDate || undefined}
               onChange={(e) => {
                 const newDeparture = e.target.value;
-                // If departure is after return, adjust return date
                 if (formData.returnDate && newDeparture > formData.returnDate) {
                   setFormData({ ...formData, departureDate: newDeparture, returnDate: newDeparture });
                 } else {
@@ -201,6 +207,7 @@ export function FlightSearchForm({
                 }
               }}
               required
+              className="border"
               style={{
                 padding: tokens.spacing.inputPadding,
                 fontSize: tokens.typography.bodySize,
@@ -208,7 +215,7 @@ export function FlightSearchForm({
                 fontFamily: tokens.typography.fontFamily,
                 background: tokens.colors.inputBackground,
                 color: tokens.colors.textPrimary,
-                border: '1px solid ' + tokens.colors.inputBorder,
+                borderColor: tokens.colors.inputBorder,
                 borderRadius: tokens.borders.inputRadius,
               }}
             />
@@ -216,7 +223,7 @@ export function FlightSearchForm({
 
           {/* Return Date */}
           {showReturnDate && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div className="flex flex-col gap-1">
               <label style={{
                 fontSize: tokens.typography.labelSize,
                 fontWeight: tokens.typography.labelWeight,
@@ -228,6 +235,7 @@ export function FlightSearchForm({
                 value={formData.returnDate || ''}
                 min={formData.departureDate || getTodayDate()}
                 onChange={(e) => setFormData({ ...formData, returnDate: e.target.value })}
+                className="border"
                 style={{
                   padding: tokens.spacing.inputPadding,
                   fontSize: tokens.typography.bodySize,
@@ -235,7 +243,7 @@ export function FlightSearchForm({
                   fontFamily: tokens.typography.fontFamily,
                   background: tokens.colors.inputBackground,
                   color: tokens.colors.textPrimary,
-                  border: '1px solid ' + tokens.colors.inputBorder,
+                  borderColor: tokens.colors.inputBorder,
                   borderRadius: tokens.borders.inputRadius,
                 }}
               />
@@ -243,7 +251,7 @@ export function FlightSearchForm({
           )}
 
           {/* Passengers */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div className="flex flex-col gap-1">
             <label style={{
               fontSize: tokens.typography.labelSize,
               fontWeight: tokens.typography.labelWeight,
@@ -257,6 +265,7 @@ export function FlightSearchForm({
               min={1}
               max={9}
               required
+              className="border"
               style={{
                 padding: tokens.spacing.inputPadding,
                 fontSize: tokens.typography.bodySize,
@@ -264,7 +273,7 @@ export function FlightSearchForm({
                 fontFamily: tokens.typography.fontFamily,
                 background: tokens.colors.inputBackground,
                 color: tokens.colors.textPrimary,
-                border: '1px solid ' + tokens.colors.inputBorder,
+                borderColor: tokens.colors.inputBorder,
                 borderRadius: tokens.borders.inputRadius,
               }}
             />
@@ -272,7 +281,7 @@ export function FlightSearchForm({
 
           {/* Cabin Class */}
           {showCabinClass && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div className="flex flex-col gap-1">
               <label style={{
                 fontSize: tokens.typography.labelSize,
                 fontWeight: tokens.typography.labelWeight,
@@ -282,6 +291,7 @@ export function FlightSearchForm({
               <select
                 value={formData.cabinClass || config.flightDefaults.cabinClass}
                 onChange={(e) => setFormData({ ...formData, cabinClass: e.target.value as any })}
+                className="border"
                 style={{
                   padding: tokens.spacing.inputPadding,
                   fontSize: tokens.typography.bodySize,
@@ -289,7 +299,7 @@ export function FlightSearchForm({
                   fontFamily: tokens.typography.fontFamily,
                   background: tokens.colors.inputBackground,
                   color: tokens.colors.textPrimary,
-                  border: '1px solid ' + tokens.colors.inputBorder,
+                  borderColor: tokens.colors.inputBorder,
                   borderRadius: tokens.borders.inputRadius,
                 }}
               >
@@ -305,10 +315,12 @@ export function FlightSearchForm({
         <button
           type="submit"
           disabled={loading}
+          className={`
+            cursor-pointer border-none transition-all
+            ${config.uxHints.priceEmphasis === 'low' ? 'uppercase tracking-wide' : ''}
+            ${loading ? 'opacity-60 cursor-not-allowed' : ''}
+          `}
           style={{ 
-            cursor: loading ? 'not-allowed' : 'pointer',
-            border: 'none',
-            transition: 'all 0.2s',
             background: config.uxHints.primaryColor,
             color: 'white',
             fontFamily: tokens.typography.fontFamily,
@@ -316,9 +328,6 @@ export function FlightSearchForm({
             fontWeight: tokens.typography.buttonWeight,
             padding: tokens.spacing.buttonPadding,
             borderRadius: tokens.borders.buttonRadius,
-            textTransform: config.uxHints.priceEmphasis === 'low' ? 'uppercase' : 'none',
-            letterSpacing: config.uxHints.priceEmphasis === 'low' ? '1px' : 'normal',
-            opacity: loading ? 0.6 : 1,
           }}
         >
           {loading ? 'Searching...' : config.uxHints.buttonLabels?.searchFlights || 'Search Flights'}

@@ -2,7 +2,7 @@
  * Layout component
  */
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import type { TenantConfig } from '../api';
 import { FeatureCards } from './FeatureCards';
 
@@ -17,107 +17,76 @@ export function Layout({ config, children, hideFeatureCards = false }: LayoutPro
   const isDense = config.uxHints.layout === 'table';
   const hasHeroImage = !!config.uxHints.backgroundImage;
   
-  // Responsive sizing for smaller screens
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
-  
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsSmallScreen(window.innerWidth < 1200);
-    };
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
-  
-  // Responsive hero sizes
-  const heroHeight = isSmallScreen ? '180px' : '280px';
-  const heroTitleSize = isSmallScreen ? '28px' : '42px';
-  const heroSubtitleSize = isSmallScreen ? '14px' : '18px';
-  const heroPadding = isSmallScreen ? '24px 16px' : '40px 20px';
-  
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      background: tokens.colors.background,
-      fontFamily: tokens.typography.fontFamily,
-      color: tokens.colors.textPrimary,
-    }}>
+    <div 
+      className="min-h-screen flex flex-col"
+      style={{
+        background: tokens.colors.background,
+        fontFamily: tokens.typography.fontFamily,
+        color: tokens.colors.textPrimary,
+      }}
+    >
       {/* Hero header with optional background image */}
-      <header style={{ 
-        color: 'white',
-        textAlign: 'center',
-        position: 'relative',
-        overflow: 'hidden',
-        ...(hasHeroImage ? {
-          minHeight: heroHeight,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-        } : {
-          padding: isDense ? '12px 20px' : (isSmallScreen ? '20px 16px' : '28px 20px'),
-        background: config.uxHints.primaryColor,
-        boxShadow: isDense ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
-        }),
-      }}>
+      <header 
+        className={`
+          text-white text-center relative overflow-hidden
+          ${hasHeroImage ? 'min-h-[180px] md:min-h-[280px] flex flex-col justify-center items-center' : ''}
+          ${!hasHeroImage && isDense ? 'py-3 px-5 shadow-sm' : ''}
+          ${!hasHeroImage && !isDense ? 'py-6 px-5' : ''}
+        `}
+        style={{
+          background: !hasHeroImage ? config.uxHints.primaryColor : undefined,
+        }}
+      >
         {/* Background image */}
         {hasHeroImage && (
           <>
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundImage: `url(${config.uxHints.backgroundImage})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: 'brightness(0.6)',
-            }} />
+            <div 
+              className="absolute inset-0 bg-cover bg-center brightness-[0.6]"
+              style={{
+                backgroundImage: `url(${config.uxHints.backgroundImage})`,
+              }}
+            />
             {/* Gradient overlay */}
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: `linear-gradient(180deg, 
-                rgba(0,0,0,0.3) 0%, 
-                rgba(0,0,0,0.5) 50%, 
-                ${config.uxHints.primaryColor}90 100%)`,
-            }} />
+            <div 
+              className="absolute inset-0"
+              style={{
+                background: `linear-gradient(180deg, 
+                  rgba(0,0,0,0.3) 0%, 
+                  rgba(0,0,0,0.5) 50%, 
+                  ${config.uxHints.primaryColor}90 100%)`,
+              }}
+            />
           </>
         )}
         
         {/* Header content */}
-        <div style={{ 
-          position: 'relative', 
-          zIndex: 1, 
-          padding: hasHeroImage ? heroPadding : '0',
-      }}>
-        <h1 style={{
-            fontSize: hasHeroImage ? heroTitleSize : tokens.typography.headingSize,
-          fontWeight: tokens.typography.headingWeight,
-            marginBottom: hasHeroImage ? (isSmallScreen ? '8px' : '12px') : '4px',
-            letterSpacing: config.uxHints.priceEmphasis === 'low' ? '4px' : '1px',
-          textTransform: config.uxHints.priceEmphasis === 'low' ? 'uppercase' : 'none',
-            textShadow: hasHeroImage ? '0 2px 20px rgba(0,0,0,0.5)' : 'none',
-        }}>
-          {config.uxHints.brandName}
-        </h1>
-        <p style={{
-            fontSize: hasHeroImage ? heroSubtitleSize : tokens.typography.bodySize,
-          opacity: 0.9,
-            display: isDense && !hasHeroImage ? 'none' : 'block',
-            textShadow: hasHeroImage ? '0 1px 10px rgba(0,0,0,0.5)' : 'none',
-            maxWidth: '600px',
-            margin: '0 auto',
-            fontWeight: 300,
-        }}>
-          {config.uxHints.tagline || 'Multi-Tenant Travel Platform Demo'}
-        </p>
+        <div className={`relative z-10 ${hasHeroImage ? 'py-6 px-4 md:py-10 md:px-5' : ''}`}>
+          <h1 
+            className={`
+              ${hasHeroImage ? 'mb-2 md:mb-3' : 'mb-1'}
+              ${config.uxHints.priceEmphasis === 'low' ? 'uppercase tracking-widest' : 'tracking-wide'}
+            `}
+            style={{
+              fontSize: hasHeroImage ? 'clamp(28px, 5vw, 42px)' : tokens.typography.headingSize,
+              fontWeight: tokens.typography.headingWeight,
+              textShadow: hasHeroImage ? '0 2px 20px rgba(0,0,0,0.5)' : 'none',
+            }}
+          >
+            {config.uxHints.brandName}
+          </h1>
+          <p 
+            className={`
+              opacity-90 max-w-2xl mx-auto font-light text-center
+              ${isDense && !hasHeroImage ? 'hidden' : 'block'}
+            `}
+            style={{
+              fontSize: hasHeroImage ? 'clamp(14px, 2.5vw, 18px)' : tokens.typography.bodySize,
+              textShadow: hasHeroImage ? '0 1px 10px rgba(0,0,0,0.5)' : 'none',
+            }}
+          >
+            {config.uxHints.tagline || 'Multi-Tenant Travel Platform Demo'}
+          </p>
         </div>
       </header>
 
@@ -126,42 +95,13 @@ export function Layout({ config, children, hideFeatureCards = false }: LayoutPro
         <FeatureCards config={config} />
       )}
       
-      <main style={{
-        flex: 1,
-        padding: '20px',
-        maxWidth: isDense ? '1600px' : '1200px',
-        margin: '0 auto',
-        width: '100%',
-      }}>
-        {children}
+      <main className="flex-1 px-3 py-4 sm:px-4 sm:py-5 md:px-5 md:py-6 w-full">
+        <div style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' }}>
+          {children}
+        </div>
       </main>
     </div>
   );
 }
 
-const styles = {
-  container: {
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column' as const,
-  },
-  header: {
-    color: 'white',
-    padding: '20px',
-    textAlign: 'center' as const,
-  },
-  title: {
-    fontSize: '28px',
-    fontWeight: 700,
-    marginBottom: '4px',
-  },
-  subtitle: {
-    fontSize: '14px',
-    opacity: 0.9,
-  },
-  main: {
-    flex: 1,
-    padding: '20px',
-  },
-};
 

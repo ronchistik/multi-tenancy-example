@@ -26,12 +26,12 @@ export function PageTitle({ text, align = 'left', config }: PageTitleRuntimeProp
   return (
     <h2
       ref={(ref) => ref && connect(drag(ref))}
+      className="mb-6"
       style={{
         fontSize: tokens.typography.headingSize,
         fontWeight: tokens.typography.headingWeight,
         fontFamily: tokens.typography.fontFamily,
         color: tokens.colors.textPrimary,
-        marginBottom: '20px',
         textAlign: align,
       }}
     >

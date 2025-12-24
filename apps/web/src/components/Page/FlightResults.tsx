@@ -37,32 +37,38 @@ export function FlightResults({
   const showPreview = isEditor && !hasSearched && offers.length === 0 && !error && !loading;
 
   return (
-    <div ref={(ref) => ref && connect(drag(ref))}>
+    <div 
+      ref={(ref) => ref && connect(drag(ref))} 
+      style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' }}
+    >
       {/* Error message */}
       {error && (
-        <div style={{
-          background: tokens.colors.errorBackground,
-          color: tokens.colors.error,
-          padding: '12px',
-          borderRadius: tokens.borders.cardRadius,
-          marginBottom: '20px',
-          fontFamily: tokens.typography.fontFamily,
-          fontSize: tokens.typography.bodySize,
-        }}>
+        <div 
+          className="p-4 mb-5 max-w-2xl mx-auto text-center"
+          style={{
+            background: tokens.colors.errorBackground,
+            color: tokens.colors.error,
+            borderRadius: tokens.borders.cardRadius,
+            fontFamily: tokens.typography.fontFamily,
+            fontSize: tokens.typography.bodySize,
+          }}
+        >
           Error: {error}
         </div>
       )}
 
       {/* Results */}
       {offers.length > 0 ? (
-        <div style={{ marginTop: '30px' }}>
-          <h3 style={{
-            fontSize: tokens.typography.subheadingSize,
-            fontWeight: tokens.typography.subheadingWeight,
-            fontFamily: tokens.typography.fontFamily,
-            color: tokens.colors.textPrimary,
-            marginBottom: '20px',
-          }}>
+        <div className="mt-10">
+          <h3 
+            className="mb-6 text-center md:text-left"
+            style={{
+              fontSize: tokens.typography.subheadingSize,
+              fontWeight: tokens.typography.subheadingWeight,
+              fontFamily: tokens.typography.fontFamily,
+              color: tokens.colors.textPrimary,
+            }}
+          >
             {title || (isTableLayout 
               ? `Results: ${offers.length} flight${offers.length !== 1 ? 's' : ''}`
               : `${offers.length} flight${offers.length !== 1 ? 's' : ''} found`
@@ -78,7 +84,7 @@ export function FlightResults({
 
       {/* Preview placeholder - shows in editor when no search done */}
       {showPreview && (
-        <div style={{ marginTop: '20px', opacity: 0.5 }}>
+        <div className="mt-5 opacity-50">
           <div style={{
             background: `repeating-linear-gradient(
               45deg,

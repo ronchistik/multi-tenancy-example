@@ -83,11 +83,11 @@ export function TenantShell({ tenantId }: TenantShellProps) {
   };
 
   if (loading) {
-    return <div style={styles.loading}>Loading tenant configuration...</div>;
+    return <div className="p-10 text-center text-base text-gray-600">Loading tenant configuration...</div>;
   }
 
   if (error || !config || !effectiveConfig) {
-    return <div style={styles.error}>Error: {error || 'No config'}</div>;
+    return <div className="p-10 text-center text-base text-red-600">Error: {error || 'No config'}</div>;
   }
 
   const flightsEnabled = config.enabledVerticals.includes('flights');
@@ -102,11 +102,11 @@ export function TenantShell({ tenantId }: TenantShellProps) {
     <Layout config={effectiveConfig} hideFeatureCards={!!usePageRenderer}>
       {/* Vertical tabs */}
       {flightsEnabled && staysEnabled && (
-        <div style={styles.tabs}>
+        <div className="flex gap-2 mb-5">
           <button
             onClick={() => setActiveTab('flights')}
+            className="px-6 py-3 text-base font-semibold rounded-lg transition-colors"
             style={{
-              ...styles.tab,
               background: activeTab === 'flights' ? effectiveConfig.uxHints.primaryColor : '#f0f0f0',
               color: activeTab === 'flights' ? 'white' : '#666',
             }}
@@ -115,8 +115,8 @@ export function TenantShell({ tenantId }: TenantShellProps) {
           </button>
           <button
             onClick={() => setActiveTab('stays')}
+            className="px-6 py-3 text-base font-semibold rounded-lg transition-colors"
             style={{
-              ...styles.tab,
               background: activeTab === 'stays' ? effectiveConfig.uxHints.primaryColor : '#f0f0f0',
               color: activeTab === 'stays' ? 'white' : '#666',
             }}
@@ -128,7 +128,7 @@ export function TenantShell({ tenantId }: TenantShellProps) {
 
       {/* Vertical disabled message */}
       {!staysEnabled && activeTab === 'stays' && (
-        <div style={styles.disabledMessage}>
+        <div className="p-5 bg-yellow-50 border border-yellow-200 rounded-lg text-center text-base text-yellow-800">
           Hotels are not available for {effectiveConfig.uxHints.brandName}
         </div>
       )}
@@ -160,38 +160,4 @@ export function TenantShell({ tenantId }: TenantShellProps) {
   );
 }
 
-const styles = {
-  loading: {
-    padding: '40px',
-    textAlign: 'center' as const,
-    fontSize: '16px',
-    color: '#666',
-  },
-  error: {
-    padding: '40px',
-    textAlign: 'center' as const,
-    fontSize: '16px',
-    color: '#c00',
-  },
-  tabs: {
-    display: 'flex',
-    gap: '10px',
-    marginBottom: '20px',
-  },
-  tab: {
-    padding: '12px 24px',
-    fontSize: '16px',
-    fontWeight: 600,
-    borderRadius: '8px',
-  },
-  disabledMessage: {
-    padding: '20px',
-    background: '#ffe',
-    border: '1px solid #dd6',
-    borderRadius: '8px',
-    textAlign: 'center' as const,
-    fontSize: '16px',
-    color: '#886',
-  },
-};
 

@@ -12,21 +12,21 @@ interface StayTableProps {
 
 export function StayTable({ stays, config }: StayTableProps) {
   if (stays.length === 0) {
-    return <p style={styles.empty}>No hotels found</p>;
+    return <p className="text-center py-10 text-gray-500">No hotels found</p>;
   }
 
   return (
-    <div style={styles.container}>
-      <table style={styles.table}>
+    <div className="bg-white rounded-lg overflow-auto shadow-sm">
+      <table className="w-full border-collapse text-sm">
         <thead>
           <tr>
-            <th style={styles.th}>Hotel</th>
-            <th style={styles.th}>Rating</th>
-            <th style={styles.th}>Location</th>
-            <th style={styles.th}>Room Type</th>
-            <th style={styles.th}>Price/Night</th>
-            <th style={styles.th}>Status</th>
-            <th style={styles.th}>Action</th>
+            <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Hotel</th>
+            <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Rating</th>
+            <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Location</th>
+            <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Room Type</th>
+            <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Price/Night</th>
+            <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Status</th>
+            <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -35,30 +35,31 @@ export function StayTable({ stays, config }: StayTableProps) {
             const hasWarnings = (stay.policy?.violations.length || 0) > 0;
 
             return (
-              <tr key={stay.id} style={styles.tr}>
-                <td style={styles.td}>{stay.accommodation.name}</td>
-                <td style={styles.td}>
+              <tr key={stay.id} className="border-b border-gray-100">
+                <td className="px-4 py-3">{stay.accommodation.name}</td>
+                <td className="px-4 py-3">
                   {stay.accommodation.rating
                     ? `${'⭐'.repeat(Math.floor(stay.accommodation.rating))} ${stay.accommodation.rating.toFixed(1)}`
                     : 'N/A'}
                 </td>
-                <td style={styles.td}>{stay.accommodation.location?.city || 'N/A'}</td>
-                <td style={styles.td}>{rate?.roomName || 'Standard'}</td>
-                <td style={{ ...styles.td, fontWeight: 600 }}>
+                <td className="px-4 py-3">{stay.accommodation.location?.city || 'N/A'}</td>
+                <td className="px-4 py-3">{rate?.roomName || 'Standard'}</td>
+                <td className="px-4 py-3 font-semibold">
                   {rate ? `${parseFloat(rate.price.amount).toFixed(0)} ${rate.price.currency}` : 'N/A'}
                 </td>
-                <td style={styles.td}>
+                <td className="px-4 py-3">
                   {hasWarnings && config.uxHints.showPolicyCompliance ? (
-                    <span style={styles.warningBadge}>
+                    <span className="text-xs text-amber-600">
                       ⚠️ {stay.policy?.violations[0]?.message}
                     </span>
                   ) : (
-                    <span style={styles.okBadge}>Approved</span>
+                    <span className="text-xs text-emerald-600 font-medium">Approved</span>
                   )}
                 </td>
-                <td style={styles.td}>
+                <td className="px-4 py-3">
                   <button
-                    style={{ ...styles.button, background: config.uxHints.primaryColor }}
+                    className="px-4 py-1 text-sm text-white rounded"
+                    style={{ background: config.uxHints.primaryColor }}
                   >
                     Book
                   </button>
@@ -71,50 +72,3 @@ export function StayTable({ stays, config }: StayTableProps) {
     </div>
   );
 }
-
-const styles = {
-  container: {
-    background: 'white',
-    borderRadius: '8px',
-    overflow: 'auto',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse' as const,
-    fontSize: '14px',
-  },
-  th: {
-    background: '#f9fafb',
-    padding: '12px 16px',
-    textAlign: 'left' as const,
-    fontWeight: 600,
-    borderBottom: '2px solid #e5e7eb',
-  },
-  tr: {
-    borderBottom: '1px solid #f0f0f0',
-  },
-  td: {
-    padding: '12px 16px',
-  },
-  warningBadge: {
-    fontSize: '12px',
-    color: '#d97706',
-  },
-  okBadge: {
-    fontSize: '12px',
-    color: '#059669',
-    fontWeight: 500,
-  },
-  button: {
-    padding: '6px 16px',
-    fontSize: '13px',
-    color: 'white',
-  },
-  empty: {
-    textAlign: 'center' as const,
-    padding: '40px',
-    color: '#999',
-  },
-};
-

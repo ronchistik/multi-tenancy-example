@@ -162,6 +162,12 @@ export function PageEditor({ pageConfig, config: baseConfig, initialThemeOverrid
       return injectedState.current;
     }
     
+    // Safety check for undefined serializedState
+    if (!pageConfig.serializedState) {
+      console.error('pageConfig.serializedState is undefined!', pageConfig);
+      return {};
+    }
+    
     const state = JSON.parse(pageConfig.serializedState);
     
     // Check if tenant has featureCards and page doesn't have FeatureCards component

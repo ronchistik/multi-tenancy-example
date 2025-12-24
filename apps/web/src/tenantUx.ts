@@ -16,12 +16,6 @@ export function getTenantStyles(config: TenantConfig): React.CSSProperties {
 }
 
 export const baseStyles = `
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
   body {
     background: #f5f5f5;
     color: #333;

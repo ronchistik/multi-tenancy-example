@@ -6,6 +6,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './app';
 import { baseStyles } from './tenantUx';
+import './index.css';
 
 // Inject base styles
 const styleSheet = document.createElement('style');

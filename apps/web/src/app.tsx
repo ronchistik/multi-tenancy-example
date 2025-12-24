@@ -72,8 +72,20 @@ export function App() {
               if (themeOverrides && Object.keys(themeOverrides).length > 0) {
                 await saveTenantTheme(tenantId, themeOverrides);
               }
+              // Update local state immediately so it's reflected when closing
+              // Must wrap in PageConfig object format (same as loadPageConfig returns)
+              setSavedPageConfig({
+                id: 'flights-page',
+                name: 'Flights Page',
+                serializedState: serializedState,
+              });
+              if (themeOverrides) {
+                setSavedTheme(themeOverrides);
+              }
+              // Increment reload key so TenantShell will reload fresh when we close
+              setReloadKey(prev => prev + 1);
               console.log('✅ Saved to database!', { serializedState, themeOverrides });
-              alert('✅ Saved to database successfully!\n\nTheme changes apply to all pages for this tenant.');
+              alert('✅ Saved! Changes will be visible when you close the editor.');
             } catch (err) {
               console.error('❌ Save failed:', err);
               alert('❌ Failed to save to database.\n\nPlease check that the API server is running.');

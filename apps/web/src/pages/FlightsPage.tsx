@@ -45,36 +45,44 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
   const tokens = config.uxHints.designTokens;
 
   return (
-    <div>
-      <h2 style={{
-        fontSize: tokens.typography.headingSize,
-        fontWeight: tokens.typography.headingWeight,
-        color: tokens.colors.textPrimary,
-        marginBottom: '20px',
-      }}>
+    <div style={{ width: '100%', maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto' }}>
+      <h2 
+        className="mb-6 text-center md:text-left"
+        style={{
+          fontSize: tokens.typography.headingSize,
+          fontWeight: tokens.typography.headingWeight,
+          color: tokens.colors.textPrimary,
+        }}
+      >
         {config.uxHints.priceEmphasis === 'low' ? 'Search Premium Flights' : 'Search Flights'}
       </h2>
 
-      <form onSubmit={handleSearch} style={{
-        background: tokens.colors.cardBackground,
-        padding: tokens.spacing.formPadding,
-        borderRadius: tokens.borders.cardRadius,
-        marginBottom: '30px',
-        boxShadow: tokens.shadows.form,
-        border: tokens.borders.cardBorderWidth !== '0' ? tokens.borders.cardBorderWidth + ' solid ' + tokens.colors.border : 'none',
-      }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: isTableLayout ? 'repeat(6, 1fr)' : 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: tokens.spacing.formGap,
-          marginBottom: '16px',
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{
-              fontSize: tokens.typography.labelSize,
-              fontWeight: tokens.typography.labelWeight,
-              color: tokens.colors.textSecondary,
-            }}>From</label>
+      <form 
+        onSubmit={handleSearch} 
+        className="mb-8 mx-auto"
+        style={{
+          maxWidth: '100%',
+          background: tokens.colors.cardBackground,
+          padding: tokens.spacing.formPadding,
+          borderRadius: tokens.borders.cardRadius,
+          boxShadow: tokens.shadows.form,
+          border: tokens.borders.cardBorderWidth !== '0' ? tokens.borders.cardBorderWidth + ' solid ' + tokens.colors.border : 'none',
+        }}
+      >
+        <div 
+          className="grid mb-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6"
+          style={{ gap: tokens.spacing.formGap }}
+        >
+          <div className="flex flex-col gap-1">
+            <label 
+              style={{
+                fontSize: tokens.typography.labelSize,
+                fontWeight: tokens.typography.labelWeight,
+                color: tokens.colors.textSecondary,
+              }}
+            >
+              From
+            </label>
             <input
               type="text"
               value={formData.origin}
@@ -82,24 +90,29 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
               placeholder="JFK"
               maxLength={3}
               required
+              className="border"
               style={{
                 padding: tokens.spacing.inputPadding,
                 fontSize: tokens.typography.bodySize,
                 fontWeight: tokens.typography.bodyWeight,
                 background: tokens.colors.inputBackground,
                 color: tokens.colors.textPrimary,
-                border: '1px solid ' + tokens.colors.inputBorder,
+                borderColor: tokens.colors.inputBorder,
                 borderRadius: tokens.borders.inputRadius,
               }}
             />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{
-              fontSize: tokens.typography.labelSize,
-              fontWeight: tokens.typography.labelWeight,
-              color: tokens.colors.textSecondary,
-            }}>To</label>
+          <div className="flex flex-col gap-1">
+            <label 
+              style={{
+                fontSize: tokens.typography.labelSize,
+                fontWeight: tokens.typography.labelWeight,
+                color: tokens.colors.textSecondary,
+              }}
+            >
+              To
+            </label>
             <input
               type="text"
               value={formData.destination}
@@ -107,24 +120,29 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
               placeholder="LAX"
               maxLength={3}
               required
+              className="border"
               style={{
                 padding: tokens.spacing.inputPadding,
                 fontSize: tokens.typography.bodySize,
                 fontWeight: tokens.typography.bodyWeight,
                 background: tokens.colors.inputBackground,
                 color: tokens.colors.textPrimary,
-                border: '1px solid ' + tokens.colors.inputBorder,
+                borderColor: tokens.colors.inputBorder,
                 borderRadius: tokens.borders.inputRadius,
               }}
             />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{
-              fontSize: tokens.typography.labelSize,
-              fontWeight: tokens.typography.labelWeight,
-              color: tokens.colors.textSecondary,
-            }}>Departure</label>
+          <div className="flex flex-col gap-1">
+            <label 
+              style={{
+                fontSize: tokens.typography.labelSize,
+                fontWeight: tokens.typography.labelWeight,
+                color: tokens.colors.textSecondary,
+              }}
+            >
+              Departure
+            </label>
             <input
               type="date"
               value={formData.departureDate}
@@ -132,7 +150,6 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
               max={formData.returnDate || undefined}
               onChange={(e) => {
                 const newDeparture = e.target.value;
-                // If departure is after return, adjust return date
                 if (formData.returnDate && newDeparture > formData.returnDate) {
                   setFormData({ ...formData, departureDate: newDeparture, returnDate: newDeparture });
                 } else {
@@ -140,47 +157,57 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
                 }
               }}
               required
+              className="border"
               style={{
                 padding: tokens.spacing.inputPadding,
                 fontSize: tokens.typography.bodySize,
                 fontWeight: tokens.typography.bodyWeight,
                 background: tokens.colors.inputBackground,
                 color: tokens.colors.textPrimary,
-                border: '1px solid ' + tokens.colors.inputBorder,
+                borderColor: tokens.colors.inputBorder,
                 borderRadius: tokens.borders.inputRadius,
               }}
             />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{
-              fontSize: tokens.typography.labelSize,
-              fontWeight: tokens.typography.labelWeight,
-              color: tokens.colors.textSecondary,
-            }}>Return</label>
+          <div className="flex flex-col gap-1">
+            <label 
+              style={{
+                fontSize: tokens.typography.labelSize,
+                fontWeight: tokens.typography.labelWeight,
+                color: tokens.colors.textSecondary,
+              }}
+            >
+              Return
+            </label>
             <input
               type="date"
               value={formData.returnDate || ''}
               min={formData.departureDate || getMinDate()}
               onChange={(e) => setFormData({ ...formData, returnDate: e.target.value })}
+              className="border"
               style={{
                 padding: tokens.spacing.inputPadding,
                 fontSize: tokens.typography.bodySize,
                 fontWeight: tokens.typography.bodyWeight,
                 background: tokens.colors.inputBackground,
                 color: tokens.colors.textPrimary,
-                border: '1px solid ' + tokens.colors.inputBorder,
+                borderColor: tokens.colors.inputBorder,
                 borderRadius: tokens.borders.inputRadius,
               }}
             />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{
-              fontSize: tokens.typography.labelSize,
-              fontWeight: tokens.typography.labelWeight,
-              color: tokens.colors.textSecondary,
-            }}>Passengers</label>
+          <div className="flex flex-col gap-1">
+            <label 
+              style={{
+                fontSize: tokens.typography.labelSize,
+                fontWeight: tokens.typography.labelWeight,
+                color: tokens.colors.textSecondary,
+              }}
+            >
+              Passengers
+            </label>
             <input
               type="number"
               value={formData.passengers}
@@ -188,34 +215,40 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
               min={1}
               max={9}
               required
+              className="border"
               style={{
                 padding: tokens.spacing.inputPadding,
                 fontSize: tokens.typography.bodySize,
                 fontWeight: tokens.typography.bodyWeight,
                 background: tokens.colors.inputBackground,
                 color: tokens.colors.textPrimary,
-                border: '1px solid ' + tokens.colors.inputBorder,
+                borderColor: tokens.colors.inputBorder,
                 borderRadius: tokens.borders.inputRadius,
               }}
             />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{
-              fontSize: tokens.typography.labelSize,
-              fontWeight: tokens.typography.labelWeight,
-              color: tokens.colors.textSecondary,
-            }}>Cabin Class</label>
+          <div className="flex flex-col gap-1">
+            <label 
+              style={{
+                fontSize: tokens.typography.labelSize,
+                fontWeight: tokens.typography.labelWeight,
+                color: tokens.colors.textSecondary,
+              }}
+            >
+              Cabin Class
+            </label>
             <select
               value={formData.cabinClass || config.flightDefaults.cabinClass}
               onChange={(e) => setFormData({ ...formData, cabinClass: e.target.value as any })}
+              className="border"
               style={{
                 padding: tokens.spacing.inputPadding,
                 fontSize: tokens.typography.bodySize,
                 fontWeight: tokens.typography.bodyWeight,
                 background: tokens.colors.inputBackground,
                 color: tokens.colors.textPrimary,
-                border: '1px solid ' + tokens.colors.inputBorder,
+                borderColor: tokens.colors.inputBorder,
                 borderRadius: tokens.borders.inputRadius,
               }}
             >
@@ -230,10 +263,12 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
         <button
           type="submit"
           disabled={loading}
+          className={`
+            cursor-pointer border-none transition-all
+            ${config.uxHints.priceEmphasis === 'low' ? 'uppercase tracking-wide' : ''}
+            ${loading ? 'opacity-70 cursor-not-allowed' : ''}
+          `}
           style={{ 
-            cursor: 'pointer',
-            border: 'none',
-            transition: 'all 0.2s',
             background: config.uxHints.primaryColor,
             color: 'white',
             fontFamily: tokens.typography.fontFamily,
@@ -241,30 +276,35 @@ export function FlightsPage({ config, onSearch }: FlightsPageProps) {
             fontWeight: tokens.typography.buttonWeight,
             padding: tokens.spacing.buttonPadding,
             borderRadius: tokens.borders.buttonRadius,
-            textTransform: config.uxHints.priceEmphasis === 'low' ? 'uppercase' : 'none',
-            letterSpacing: config.uxHints.priceEmphasis === 'low' ? '1px' : 'normal',
           }}
         >
           {loading ? 'Searching...' : config.uxHints.buttonLabels?.searchFlights || 'Search Flights'}
         </button>
       </form>
 
-      {error && <div style={{
-        background: tokens.colors.errorBackground,
-        color: tokens.colors.error,
-        padding: '12px',
-        borderRadius: tokens.borders.cardRadius,
-        marginBottom: '20px',
-      }}>Error: {error}</div>}
+      {error && (
+        <div 
+          className="p-4 mb-5 max-w-2xl mx-auto text-center"
+          style={{
+            background: tokens.colors.errorBackground,
+            color: tokens.colors.error,
+            borderRadius: tokens.borders.cardRadius,
+          }}
+        >
+          Error: {error}
+        </div>
+      )}
 
       {offers.length > 0 && (
-        <div style={{ marginTop: '30px' }}>
-          <h3 style={{
-            fontSize: tokens.typography.subheadingSize,
-            fontWeight: tokens.typography.subheadingWeight,
-            color: tokens.colors.textPrimary,
-            marginBottom: '20px',
-          }}>
+        <div className="mt-10">
+          <h3 
+            className="mb-6 text-center md:text-left"
+            style={{
+              fontSize: tokens.typography.subheadingSize,
+              fontWeight: tokens.typography.subheadingWeight,
+              color: tokens.colors.textPrimary,
+            }}
+          >
             {isTableLayout ? `Results: ${offers.length} flight${offers.length !== 1 ? 's' : ''}` :
              `${offers.length} flight${offers.length !== 1 ? 's' : ''} found`}
           </h3>
@@ -288,60 +328,4 @@ function getDefaultDate(daysFromNow: number): string {
 function getMinDate(): string {
   return new Date().toISOString().split('T')[0]!;
 }
-
-const styles = {
-  title: {
-    fontSize: '24px',
-    fontWeight: 600,
-    marginBottom: '20px',
-  },
-  form: {
-    background: 'white',
-    padding: '24px',
-    borderRadius: '12px',
-    marginBottom: '30px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-  },
-  formRow: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-    gap: '16px',
-    marginBottom: '16px',
-  },
-  field: {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: '6px',
-  },
-  label: {
-    fontSize: '14px',
-    fontWeight: 500,
-    color: '#555',
-  },
-  input: {
-    padding: '8px 12px',
-    fontSize: '14px',
-  },
-  button: {
-    padding: '12px 24px',
-    color: 'white',
-    fontSize: '16px',
-    fontWeight: 600,
-  },
-  error: {
-    background: '#fee',
-    color: '#c00',
-    padding: '12px',
-    borderRadius: '6px',
-    marginBottom: '20px',
-  },
-  results: {
-    marginTop: '30px',
-  },
-  resultsTitle: {
-    fontSize: '18px',
-    fontWeight: 600,
-    marginBottom: '20px',
-  },
-};
 

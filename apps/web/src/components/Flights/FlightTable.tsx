@@ -12,21 +12,21 @@ interface FlightTableProps {
 
 export function FlightTable({ offers, config }: FlightTableProps) {
   if (offers.length === 0) {
-    return <p style={styles.empty}>No flights found</p>;
+    return <p className="text-center py-10 text-gray-500">No flights found</p>;
   }
 
   return (
-    <div style={styles.container}>
-      <table style={styles.table}>
+    <div className="bg-white rounded-lg overflow-auto shadow-sm">
+      <table className="w-full border-collapse text-sm">
         <thead>
           <tr>
-            <th style={styles.th}>Airline</th>
-            <th style={styles.th}>Route</th>
-            <th style={styles.th}>Departure</th>
-            <th style={styles.th}>Arrival</th>
-            <th style={styles.th}>Price</th>
-            <th style={styles.th}>Status</th>
-            <th style={styles.th}>Action</th>
+            <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Airline</th>
+            <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Route</th>
+            <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Departure</th>
+            <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Arrival</th>
+            <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Price</th>
+            <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Status</th>
+            <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -39,26 +39,24 @@ export function FlightTable({ offers, config }: FlightTableProps) {
             return (
               <tr
                 key={offer.id}
+                className="border-b border-gray-100"
                 style={{
-                  ...styles.tr,
-                  background: isPreferred && config.uxHints.highlightPreferred
-                    ? '#f0fdf4'
-                    : 'white',
+                  background: isPreferred && config.uxHints.highlightPreferred ? '#f0fdf4' : 'white',
                 }}
               >
-                <td style={styles.td}>
+                <td className="px-4 py-3">
                   {offer.owner.name}
                   {isPreferred && config.uxHints.highlightPreferred && (
-                    <span style={styles.preferredTag}>✓</span>
+                    <span className="ml-1 text-emerald-500 font-semibold">✓</span>
                   )}
                   {hasPromo && (
-                    <span style={styles.promoTag}>✨</span>
+                    <span className="ml-1 text-sm">✨</span>
                   )}
                 </td>
-                <td style={styles.td}>
+                <td className="px-4 py-3">
                   {slice?.origin.code} → {slice?.destination.code}
                 </td>
-                <td style={styles.td}>
+                <td className="px-4 py-3">
                   {slice && new Date(slice.departureTime).toLocaleString('en-US', {
                     month: 'short',
                     day: 'numeric',
@@ -66,7 +64,7 @@ export function FlightTable({ offers, config }: FlightTableProps) {
                     minute: '2-digit',
                   })}
                 </td>
-                <td style={styles.td}>
+                <td className="px-4 py-3">
                   {slice && new Date(slice.arrivalTime).toLocaleString('en-US', {
                     month: 'short',
                     day: 'numeric',
@@ -74,28 +72,27 @@ export function FlightTable({ offers, config }: FlightTableProps) {
                     minute: '2-digit',
                   })}
                 </td>
-                <td style={{ ...styles.td, fontWeight: 600 }}>
+                <td className="px-4 py-3 font-semibold">
                   {parseFloat(offer.price.amount).toFixed(0)} {offer.price.currency}
                 </td>
-                <td style={styles.td}>
+                <td className="px-4 py-3">
                   {hasPromo && offer.policy?.promotions ? (
-                    <div>
-                      <span style={styles.promoBadge}>
-                        ✨ {offer.policy.promotions[0]?.message}
-                      </span>
-                    </div>
+                    <span className="text-xs text-purple-600 font-semibold">
+                      ✨ {offer.policy.promotions[0]?.message}
+                    </span>
                   ) : hasWarnings && config.uxHints.showPolicyCompliance ? (
-                    <span style={styles.warningBadge}>
+                    <span className="text-xs text-amber-600">
                       {offer.policy?.violations[0]?.severity === 'error' ? '🚫' : 
                        offer.policy?.violations[0]?.severity === 'info' ? 'ℹ️' : '⚠️'} {offer.policy?.violations[0]?.message}
                     </span>
                   ) : (
-                    <span style={styles.okBadge}>Approved</span>
+                    <span className="text-xs text-emerald-600 font-medium">Approved</span>
                   )}
                 </td>
-                <td style={styles.td}>
+                <td className="px-4 py-3">
                   <button
-                    style={{ ...styles.button, background: config.uxHints.primaryColor }}
+                    className="px-4 py-1 text-sm text-white rounded"
+                    style={{ background: config.uxHints.primaryColor }}
                   >
                     Book
                   </button>
@@ -108,64 +105,3 @@ export function FlightTable({ offers, config }: FlightTableProps) {
     </div>
   );
 }
-
-const styles = {
-  container: {
-    background: 'white',
-    borderRadius: '8px',
-    overflow: 'auto',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse' as const,
-    fontSize: '14px',
-  },
-  th: {
-    background: '#f9fafb',
-    padding: '12px 16px',
-    textAlign: 'left' as const,
-    fontWeight: 600,
-    borderBottom: '2px solid #e5e7eb',
-  },
-  tr: {
-    borderBottom: '1px solid #f0f0f0',
-  },
-  td: {
-    padding: '12px 16px',
-  },
-  preferredTag: {
-    marginLeft: '6px',
-    color: '#10b981',
-    fontWeight: 600,
-  },
-  promoTag: {
-    marginLeft: '6px',
-    fontSize: '14px',
-  },
-  promoBadge: {
-    fontSize: '12px',
-    color: '#7c3aed',
-    fontWeight: 600,
-  },
-  warningBadge: {
-    fontSize: '12px',
-    color: '#d97706',
-  },
-  okBadge: {
-    fontSize: '12px',
-    color: '#059669',
-    fontWeight: 500,
-  },
-  button: {
-    padding: '6px 16px',
-    fontSize: '13px',
-    color: 'white',
-  },
-  empty: {
-    textAlign: 'center' as const,
-    padding: '40px',
-    color: '#999',
-  },
-};
-
