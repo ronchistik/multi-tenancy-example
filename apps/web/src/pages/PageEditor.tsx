@@ -304,6 +304,7 @@ export function PageEditor({ pageConfig, config: baseConfig, initialThemeOverrid
               <div style={{
                 background: config.uxHints.designTokens.colors.background,
                 minHeight: 'calc(100vh - 140px)',
+                minWidth: '800px',
                 borderRadius: '8px',
                 boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                 overflow: 'hidden',
