@@ -123,6 +123,11 @@ export function FlightCards({ offers, config }: FlightCardsProps) {
                 fontSize: tokens.typography.bodySize,
                 color: tokens.colors.textSecondary,
               }}>
+                {new Date(slice.departureTime).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                })}
+                {' • '}
                 {new Date(slice.departureTime).toLocaleTimeString('en-US', {
                   hour: '2-digit',
                   minute: '2-digit',

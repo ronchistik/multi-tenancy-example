@@ -292,9 +292,9 @@ export function StaysPage({ config, locations, onSearch }: StaysPageProps) {
             {stays.length} hotel{stays.length !== 1 ? 's' : ''} found
           </h3>
           {isTableLayout ? (
-            <StayTable stays={stays} config={config} />
+            <StayTable stays={stays} config={config} checkInDate={formData.checkInDate} checkOutDate={formData.checkOutDate} />
           ) : (
-            <StayCards stays={stays} config={config} />
+            <StayCards stays={stays} config={config} checkInDate={formData.checkInDate} checkOutDate={formData.checkOutDate} />
           )}
         </div>
       )}

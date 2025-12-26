@@ -8,9 +8,11 @@ import type { StayOffer, TenantConfig } from '../../api';
 interface StayCardsProps {
   stays: StayOffer[];
   config: TenantConfig;
+  checkInDate: string;
+  checkOutDate: string;
 }
 
-export function StayCards({ stays, config }: StayCardsProps) {
+export function StayCards({ stays, config, checkInDate, checkOutDate }: StayCardsProps) {
   const tokens = config.uxHints.designTokens;
 
   if (stays.length === 0) {
@@ -77,6 +79,14 @@ export function StayCards({ stays, config }: StayCardsProps) {
                 {stay.accommodation.location.city}
               </div>
             )}
+
+            {/* Dates */}
+            <div 
+              className="text-sm px-4 pb-2"
+              style={{ color: tokens.colors.textSecondary }}
+            >
+              {new Date(checkInDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(checkOutDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            </div>
 
             {/* Price */}
             {rate && (

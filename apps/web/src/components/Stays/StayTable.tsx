@@ -8,9 +8,11 @@ import type { StayOffer, TenantConfig } from '../../api';
 interface StayTableProps {
   stays: StayOffer[];
   config: TenantConfig;
+  checkInDate: string;
+  checkOutDate: string;
 }
 
-export function StayTable({ stays, config }: StayTableProps) {
+export function StayTable({ stays, config, checkInDate, checkOutDate }: StayTableProps) {
   if (stays.length === 0) {
     return <p className="text-center py-10 text-gray-500">No hotels found</p>;
   }
@@ -23,6 +25,7 @@ export function StayTable({ stays, config }: StayTableProps) {
             <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Hotel</th>
             <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Rating</th>
             <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Location</th>
+            <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Dates</th>
             <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Room Type</th>
             <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Price/Night</th>
             <th className="bg-gray-50 px-4 py-3 text-left font-semibold border-b-2 border-gray-200">Status</th>
@@ -43,6 +46,9 @@ export function StayTable({ stays, config }: StayTableProps) {
                     : 'N/A'}
                 </td>
                 <td className="px-4 py-3">{stay.accommodation.location?.city || 'N/A'}</td>
+                <td className="px-4 py-3 text-xs">
+                  {new Date(checkInDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(checkOutDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </td>
                 <td className="px-4 py-3">{rate?.roomName || 'Standard'}</td>
                 <td className="px-4 py-3 font-semibold">
                   {rate ? `${parseFloat(rate.price.amount).toFixed(0)} ${rate.price.currency}` : 'N/A'}
