@@ -281,7 +281,7 @@ export function PageEditor({ pageConfig, config: baseConfig, initialThemeOverrid
                   Theme Customization
                 </h3>
                 <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
-                  These changes only affect this page. Green dot ● = overridden.
+                  Theme changes apply to all pages for this tenant. Green dot ● = overridden.
                 </p>
                 <ThemeEditor
                   baseConfig={baseConfig}
