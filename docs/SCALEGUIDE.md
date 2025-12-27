@@ -192,6 +192,11 @@ const [flights1, flights2, flights3] = await Promise.all([
 // Total: 3s (parallel)
 ```
 
+
+*IMPORTANT ADDITIONAL INFO*
+Node.js/Fastify is Async & Non-blocking (so different users will not block each other; this only blocks if same user does multiple requests concurrently)
+Fastify handles concurrent requests naturally using Node.js's event loop. Each request is processed asynchronously.
+
 ---
 
 ## 🚀 **How to Scale to Production**
