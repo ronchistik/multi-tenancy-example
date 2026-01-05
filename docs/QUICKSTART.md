@@ -17,34 +17,50 @@ Get the Odynn multi-tenant platform running in **3 minutes**.
 # 1. Install dependencies
 pnpm install
 
-# 2. Create .env files (optional - has defaults)
-cp apps/backend/.env.example apps/backend/.env
-cp apps/frontend/.env.example apps/frontend/.env
-# Then edit with actual Duffel keys if needed
+# 2. Create .env file (optional - has defaults)
+cp .env.example .env
+```
 
-# 3. Start both API and frontend
+### What's in `.env`?
+
+The root `.env` file contains all configuration for both backend and frontend:
+
+```env
+# Backend API Configuration
+PORT=3001
+NODE_ENV=development
+
+# Database
+DB_PATH=./apps/backend/data/configs.db
+
+# External API Keys (Duffel)
+DUFFEL_API_KEY=your_duffel_api_key_here
+
+# CORS
+CORS_ORIGIN=http://localhost:5173
+
+# Logging
+LOG_LEVEL=info
+
+# Frontend Configuration
+VITE_API_URL=http://localhost:3001
+VITE_APP_NAME=Odynn Travel Platform
+VITE_APP_ENV=development
+```
+
+```bash
+# 3. Start both backend and frontend
 pnpm dev
 ```
 
 > **Note:** SQLite database auto-creates at `apps/backend/data/configs.db` on first run. No database setup required.
 
-### .env file format
-
-```env
-API_PORT=5050
-API_HOST=0.0.0.0
-NODE_ENV=development
-DUFFEL_KEY_SAVER_TRIPS=duffel_test__YOUR_KEY_HERE
-DUFFEL_KEY_APEX_RESERVE=duffel_test__YOUR_KEY_HERE
-DUFFEL_KEY_GLOBEX_SYSTEMS=duffel_test__YOUR_KEY_HERE
-```
-
 ---
 
 ## Access
 
-**Frontend:** http://localhost:3000  
-**API:** http://localhost:5050
+**Frontend:** http://localhost:5173  
+**API:** http://localhost:3001
 
 ---
 
@@ -112,27 +128,6 @@ curl -X POST http://localhost:5050/api/stays/search \
 
 ---
 
-## Run Tests & Linting
-
-```bash
-# Run tests
-pnpm test
-
-# Type checking
-pnpm type-check
-
-# Lint code
-pnpm lint
-
-# Auto-fix linting issues
-pnpm lint:fix
-
-# Format code with Prettier
-pnpm format
-```
-
----
-
 ## Project Structure
 
 ```
@@ -144,8 +139,7 @@ odynn/
 │  │  │  ├─ domain/     # Business logic (flights, stays)
 │  │  │  ├─ platform/   # Tenants, policies, locations
 │  │  │  └─ providers/  # External APIs (Duffel)
-│  │  ├─ data/          # SQLite database (auto-created)
-│  │  └─ .env.example
+│  │  └─ data/          # SQLite database (auto-created)
 │  └─ frontend/         # Frontend (React + Craft.js)
 │     ├─ src/
 │     │  ├─ components/ # Organized by domain
@@ -157,12 +151,10 @@ odynn/
 │     │  │  ├─ theme/   # ThemeEditor
 │     │  │  └─ ui/      # Button, Text, etc.
 │     │  └─ pages/      # Page components
-│     └─ .env.example
 ├─ docs/                # Documentation
 │  ├─ DESIGN.md         # Architecture deep-dive
 │  └─ QUICKSTART.md     # This file
-├─ .prettierrc          # Prettier config
-├─ eslint.config.js     # ESLint config (root)
+├─ .env.example         # Environment config
 └─ README.md            # Full documentation
 ```
 
@@ -172,23 +164,13 @@ odynn/
 
 **Port already in use:**
 ```bash
-# Change ports in .env
-API_PORT=5051
+# Change PORT in .env file
+PORT=3002
 ```
 
 **Missing dependencies:**
 ```bash
 pnpm install
-```
-
-**Type errors:**
-```bash
-pnpm type-check
-```
-
-**Linting errors:**
-```bash
-pnpm lint
 ```
 
 ---
