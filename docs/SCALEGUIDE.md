@@ -50,7 +50,7 @@ pnpm dev  # → Single Node.js process
 **Solution:** Add clustering
 
 ```typescript
-// apps/api/src/cluster.ts
+// apps/backend/src/cluster.ts
 import cluster from 'cluster';
 import os from 'os';
 
@@ -374,7 +374,7 @@ With Clustering + Redis:
 **To reach 10,000 concurrent users:**
 ```bash
 # Step 1: Add clustering (Week 1)
-PM2 start apps/api/src/index.ts -i max
+PM2 start apps/backend/src/index.ts -i max
 
 # Step 2: Add Redis (Week 1)
 docker run -d -p 6379:6379 redis

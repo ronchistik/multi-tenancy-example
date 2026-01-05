@@ -17,15 +17,16 @@ Get the Odynn multi-tenant platform running in **3 minutes**.
 # 1. Install dependencies
 pnpm install
 
-# 2. Create .env file in project root
-cp .env.example .env
-# Then edit .env with actual Duffel keys from the assignment email
+# 2. Create .env files (optional - has defaults)
+cp apps/backend/.env.example apps/backend/.env
+cp apps/frontend/.env.example apps/frontend/.env
+# Then edit with actual Duffel keys if needed
 
 # 3. Start both API and frontend
 pnpm dev
 ```
 
-> **Note:** SQLite database auto-creates at `apps/api/data/configs.db` on first run. No database setup required.
+> **Note:** SQLite database auto-creates at `apps/backend/data/configs.db` on first run. No database setup required.
 
 ### .env file format
 
@@ -111,10 +112,23 @@ curl -X POST http://localhost:5050/api/stays/search \
 
 ---
 
-## Run Tests
+## Run Tests & Linting
 
 ```bash
+# Run tests
 pnpm test
+
+# Type checking
+pnpm type-check
+
+# Lint code
+pnpm lint
+
+# Auto-fix linting issues
+pnpm lint:fix
+
+# Format code with Prettier
+pnpm format
 ```
 
 ---
@@ -122,14 +136,33 @@ pnpm test
 ## Project Structure
 
 ```
-multi-tenancy-example/
+odynn/
 ├─ apps/
-│  ├─ api/              # Backend (Fastify + SQLite)
-│  │  └─ data/          # SQLite database (auto-created)
-│  └─ web/              # Frontend (React + Craft.js)
+│  ├─ backend/          # Backend (Fastify + SQLite)
+│  │  ├─ src/
+│  │  │  ├─ api/        # Routes, schemas, plugins
+│  │  │  ├─ domain/     # Business logic (flights, stays)
+│  │  │  ├─ platform/   # Tenants, policies, locations
+│  │  │  └─ providers/  # External APIs (Duffel)
+│  │  ├─ data/          # SQLite database (auto-created)
+│  │  └─ .env.example
+│  └─ frontend/         # Frontend (React + Craft.js)
+│     ├─ src/
+│     │  ├─ components/ # Organized by domain
+│     │  │  ├─ common/  # Layout, RenderNode
+│     │  │  ├─ features/ # FeatureCards
+│     │  │  ├─ flights/ # Flight components
+│     │  │  ├─ stays/   # Stay components
+│     │  │  ├─ tenant/  # TenantPicker
+│     │  │  ├─ theme/   # ThemeEditor
+│     │  │  └─ ui/      # Button, Text, etc.
+│     │  └─ pages/      # Page components
+│     └─ .env.example
 ├─ docs/                # Documentation
 │  ├─ DESIGN.md         # Architecture deep-dive
 │  └─ QUICKSTART.md     # This file
+├─ .prettierrc          # Prettier config
+├─ eslint.config.js     # ESLint config (root)
 └─ README.md            # Full documentation
 ```
 
@@ -153,6 +186,11 @@ pnpm install
 pnpm type-check
 ```
 
+**Linting errors:**
+```bash
+pnpm lint
+```
+
 ---
 
 ## Next Steps
@@ -160,12 +198,12 @@ pnpm type-check
 1. Read [README.md](../README.md) for full documentation
 2. Read [DESIGN.md](./DESIGN.md) for architecture details
 3. Explore the codebase:
-   - `apps/api/src/platform/tenant/tenant.registry.ts` - Tenant configs
-   - `apps/api/src/platform/policies/` - Policy engine
-   - `apps/web/src/components/` - UX components
+   - `apps/backend/src/platform/tenant/tenant.registry.ts` - Tenant configs
+   - `apps/backend/src/platform/policies/` - Policy engine
+   - `apps/frontend/src/components/` - Organized UX components
 4. Inspect the database:
    ```bash
-   sqlite3 apps/api/data/configs.db ".tables"
+   sqlite3 apps/backend/data/configs.db ".tables"
    ```
 
 ---

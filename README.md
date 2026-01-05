@@ -93,8 +93,8 @@ EOF
 pnpm dev
 
 # Or run separately:
-pnpm dev:api   # API on http://localhost:5050
-pnpm dev:web   # Frontend on http://localhost:3000
+pnpm dev:backend   # API on http://localhost:5050
+pnpm dev:frontend  # Frontend on http://localhost:3000
 ```
 
 **Open your browser to [http://localhost:3000](http://localhost:3000)** to see the multi-tenant demo.
@@ -103,6 +103,13 @@ pnpm dev:web   # Frontend on http://localhost:3000
 
 ```bash
 pnpm test
+```
+
+### Linting & Formatting
+
+```bash
+pnpm lint        # Check code quality
+pnpm format      # Format with Prettier
 ```
 
 ---
@@ -152,9 +159,9 @@ This platform uses a **modular monolith** architecture with strict layer separat
 ### Directory Structure
 
 ```
-multi-tenancy-example/
+odynn/
 ├─ apps/
-│  ├─ api/                    # Backend (Fastify + TypeScript)
+│  ├─ backend/                # Backend (Fastify + TypeScript)
 │  │  ├─ src/
 │  │  │  ├─ platform/         # Tenant modeling + policies
 │  │  │  ├─ domain/           # Business logic (flights, stays)
@@ -165,17 +172,25 @@ multi-tenancy-example/
 │  │  ├─ data/                # SQLite database file (auto-created)
 │  │  └─ test/                # Tests
 │  │
-│  └─ web/                    # Frontend (React + Vite + Tailwind CSS)
+│  └─ frontend/               # Frontend (React + Vite + Tailwind CSS)
 │     ├─ src/
-│     │  ├─ components/       # Layout, TenantPicker, Flight/Stay cards/tables
+│     │  ├─ components/       # Organized by domain
+│     │  │  ├─ common/        # Layout, RenderNode
+│     │  │  ├─ features/      # FeatureCards
+│     │  │  ├─ flights/       # Flight components
+│     │  │  ├─ stays/         # Stay components
+│     │  │  ├─ tenant/        # TenantPicker
+│     │  │  ├─ theme/         # ThemeEditor
+│     │  │  └─ ui/            # Button, Text, etc.
 │     │  ├─ pages/            # FlightsPage, StaysPage, PageEditor
 │     │  ├─ api.ts            # API client
 │     │  └─ tenantUx.ts       # Theming utilities
 │
 ├─ docs/                      # Documentation
+├─ .prettierrc                # Prettier config
+├─ eslint.config.js           # ESLint config
 ├─ package.json               # Workspace root
 ├─ pnpm-workspace.yaml
-├─ .env                       # Environment variables (Duffel API keys)
 └─ README.md
 ```
 
@@ -526,7 +541,7 @@ Page configurations and theme overrides are persisted in **SQLite** for zero-con
 
 ### How It Works
 
-- **Database file:** `apps/api/data/configs.db` (auto-created on first run)
+- **Database file:** `apps/backend/data/configs.db` (auto-created on first run)
 - **No setup required:** Just run `pnpm dev` — tables are created automatically
 - **Two tables:**
   - `page_configs` — Stores Craft.js page layouts per tenant/page
@@ -543,12 +558,12 @@ Page configurations and theme overrides are persisted in **SQLite** for zero-con
 
 **TablePlus** (recommended):
 1. Create new connection → Select **SQLite**
-2. Database path: `apps/api/data/configs.db`
+2. Database path: `apps/backend/data/configs.db`
 3. Connect
 
 **Command line:**
 ```bash
-sqlite3 apps/api/data/configs.db
+sqlite3 apps/backend/data/configs.db
 .tables                    # List tables
 SELECT * FROM page_configs;
 SELECT * FROM tenant_themes;
@@ -823,7 +838,7 @@ it('should mark preferred airline as preferred', () => {
 
 ### Step 1: Define the Tenant
 
-Edit `apps/api/src/platform/tenant/tenant.registry.ts`:
+Edit `apps/backend/src/platform/tenant/tenant.registry.ts`:
 
 ```typescript
 const NEW_TENANT: Tenant = {
@@ -869,7 +884,7 @@ DUFFEL_KEY_NEW_TENANT=duffel_test_...
 
 ### Step 3: Add to Frontend Picker
 
-Edit `apps/web/src/components/TenantPicker.tsx`:
+Edit `apps/frontend/src/components/tenant/TenantPicker.tsx`:
 
 ```typescript
 const TENANTS = [
@@ -888,7 +903,7 @@ Example: **Car Rentals**
 
 ### Step 1: Extend Tenant Model
 
-Edit `apps/api/src/platform/tenant/tenant.types.ts`:
+Edit `apps/backend/src/platform/tenant/tenant.types.ts`:
 
 ```typescript
 export type Vertical = 'flights' | 'stays' | 'cars';
@@ -907,7 +922,7 @@ export interface Tenant {
 
 ### Step 2: Create Domain Service
 
-Create `apps/api/src/domain/cars/cars.service.ts`:
+Create `apps/backend/src/domain/cars/cars.service.ts`:
 
 ```typescript
 export class CarsService {
@@ -919,11 +934,11 @@ export class CarsService {
 
 ### Step 3: Create Provider
 
-Create `apps/api/src/providers/duffel/duffel.cars.ts` or a new provider (e.g., Amadeus).
+Create `apps/backend/src/providers/duffel/duffel.cars.ts` or a new provider (e.g., Amadeus).
 
 ### Step 4: Add API Route
 
-Create `apps/api/src/api/routes/cars.route.ts`:
+Create `apps/backend/src/api/routes/cars.route.ts`:
 
 ```typescript
 export const carsRoute: FastifyPluginCallback = (fastify, opts, done) => {
@@ -940,7 +955,7 @@ export const carsRoute: FastifyPluginCallback = (fastify, opts, done) => {
 
 ### Step 5: Register Route
 
-In `apps/api/src/server.ts`:
+In `apps/backend/src/server.ts`:
 
 ```typescript
 await instance.register(carsRoute, { prefix: '/api' });
@@ -948,7 +963,7 @@ await instance.register(carsRoute, { prefix: '/api' });
 
 ### Step 6: Add Frontend
 
-Create `apps/web/src/pages/CarsPage.tsx` and add to `TenantShell.tsx`.
+Create `apps/frontend/src/pages/CarsPage.tsx` and add to `TenantShell.tsx`.
 
 **Done!** New vertical is live with full tenant support.
 

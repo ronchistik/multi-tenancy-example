@@ -1,0 +1,10 @@
+node_modules
+dist
+coverage
+.turbo
+*.log
+pnpm-lock.yaml
+*.db
+*.db-shm
+*.db-wal
+

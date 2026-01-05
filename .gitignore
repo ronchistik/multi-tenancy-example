@@ -8,5 +8,5 @@ coverage
 .turbo
 
 # SQLite database
-apps/api/data/
+apps/backend/data/
 

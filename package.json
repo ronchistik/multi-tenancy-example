@@ -5,14 +5,22 @@
   "packageManager": "pnpm@9.12.1",
   "scripts": {
     "dev": "pnpm -r --parallel dev",
-    "dev:api": "pnpm --filter @odynn/api dev",
-    "dev:web": "pnpm --filter @odynn/web dev",
+    "dev:backend": "pnpm --filter @odynn/backend dev",
+    "dev:frontend": "pnpm --filter @odynn/frontend dev",
     "build": "pnpm -r build",
-    "test": "pnpm --filter @odynn/api test",
-    "type-check": "pnpm -r type-check"
+    "test": "pnpm --filter @odynn/backend test",
+    "type-check": "pnpm -r type-check",
+    "lint": "pnpm -r lint",
+    "lint:fix": "pnpm -r lint:fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\""
   },
   "devDependencies": {
-    "typescript": "^5.6.3"
+    "@eslint/js": "^9.15.0",
+    "eslint": "^9.15.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.14.0"
   }
 }
 
